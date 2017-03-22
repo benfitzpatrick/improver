@@ -42,8 +42,9 @@ install:
   # Prepare iris build directory
   - wget https://github.com/SciTools/iris/archive/v1.12.0.tar.gz -O $HOME/iris.tar.gz
   - tar xvf $HOME/iris.tar.gz -C $HOME
-  - python $HOME/iris-1.12.0/setup.py --with-unpack build_ext --include-dirs=${PREFIX}/include --library-dirs=${PREFIX}/lib
-  - IRIS=$(ls -d1 $HOME/iris-1.12.0/build/lib*/iris)
+  - cd $HOME/iris-1.12.0
+  - python setup.py --with-unpack build_ext --include-dirs=${PREFIX}/include --library-dirs=${PREFIX}/lib
+  - IRIS=$(ls -d1 build/lib*/iris)
   - mkdir $IRIS/etc
 
   # Set config paths
@@ -54,6 +55,7 @@ install:
    # Build Iris
   - python setup.py --quiet --with-unpack build
   - python setup.py --quiet --with-unpack install
+  - cd -
 
 script:
   - python -c "import iris"
