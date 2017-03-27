@@ -32,9 +32,6 @@
 """Script to run neighbourhood processing."""
 
 import argparse
-import glob
-import os
-import sys
 
 import iris
 
