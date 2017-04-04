@@ -16,6 +16,8 @@
 #    meteorological data.
 #------------------------------------------------------------------------------
 
+set -eu
+
 # List all improver subcommands or operations.
 get_operations() {
     cd $(dirname $0)
@@ -67,7 +69,8 @@ if [[ -f etc/site-init ]]; then
 fi
 
 # Put our library and scripts in the paths.
-PYTHONPATH="$(dirname $0)/../lib/:$PYTHONPATH"
-PATH="$(dirname $0):$PATH"
+export IMPROVER_DIR=$(cd $(dirname $0)/../ && pwd -P)
+export PYTHONPATH="$(dirname $0)/../lib/:${PYTHONPATH:-}"
+export PATH="$(dirname $0):$PATH"
 
 exec improver-$OPER "$@"
