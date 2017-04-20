@@ -90,7 +90,7 @@ class PercentileConverter(object):
 
         Parameters
         ----------
-        cube : iris.cube.Cube
+        cube : iris.cube.Cube instance
             Given the collapse coordinate, convert the set of values
             along that coordinate into a PDF and extract percentiles
             and min, max, mean, stdev.
