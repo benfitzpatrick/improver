@@ -114,14 +114,12 @@ class BasicNeighbourhoodProcessing(object):
 
     def process(self, cube):
         """
-        Set the specified name and units metadata to the cube from the upstream
-        plugin.
+        Apply basic neighbourhood processing to the cube x-y data.
 
         Returns
         -------
         Cube
-            The cube from the upstream plugin with name and units metadata
-            applied.
+            The input cube with neighbourhood processing applied.
 
         """
         try:
