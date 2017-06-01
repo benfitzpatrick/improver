@@ -59,18 +59,24 @@ class PercentileConverter(object):
             raise ValueError('collapse_coord is {!r}, which does not specify '
                              'a single coordinate.'.format(collapse_coord))
 
-    def process_percentiles(self, cube):
+    def process(self, cube):
         """
         Create a cube containing the percentiles as a new dimension.
+
+        What's generated is:
+            * 13 percentiles - (5%, 10%, 20%, 25%, 30%, 40%, 50%, 60%,
+              70%, 75%, 80%, 90%, 95%)
 
         Parameters
         ----------
         cube : iris.cube.Cube instance
-            The cube returned by the "upstream" plugin.
+            Given the collapse coordinate, convert the set of values
+            along that coordinate into a PDF and extract percentiles
+            and min, max, mean, stdev.
 
         Returns
         -------
-        Cube
+        cube : iris.cube.Cube instance
             A single merged cube of all the cubes produced by each percentile
             collapse.
 
@@ -78,40 +84,3 @@ class PercentileConverter(object):
         return cube.collapsed(self.collapse_coord,
                               iris.analysis.PERCENTILE,
                               percent=self.PERCENTILES)
-
-    def process(self, cube):
-        """Generate the percentiles and other info for the source cube.
-
-        What's generated is:
-            * 13 percentiles
-              (5%, 10%, 20%, 25%, 30%, 40%, 50%, 60%, 70%, 75%, 80%, 90%, 95%),
-            * lower and upper bounds, (i.e. min and max) and
-            * mean and standard deviation.
-
-        Parameters
-        ----------
-        cube : iris.cube.Cube
-            Given the collapse coordinate, convert the set of values
-            along that coordinate into a PDF and extract percentiles
-            and min, max, mean, stdev.
-
-        Returns
-        -------
-        List of cubes : iris.cube.CubeList
-            A list of cubes collapsed from the source cube, one for all
-            percentiles and one for each of the other elements of the PDF.
-
-        """
-        pdf_cubes = iris.cube.CubeList()
-
-        percentiles_cube = self.process_percentiles(cube)
-        pdf_cubes.append(percentiles_cube)
-        pdf_cubes.append(cube.collapsed(self.collapse_coord,
-                                        iris.analysis.MIN))
-        pdf_cubes.append(cube.collapsed(self.collapse_coord,
-                                        iris.analysis.MAX))
-        pdf_cubes.append(cube.collapsed(self.collapse_coord,
-                                        iris.analysis.MEAN))
-        pdf_cubes.append(cube.collapsed(self.collapse_coord,
-                                        iris.analysis.STD_DEV))
-        return pdf_cubes

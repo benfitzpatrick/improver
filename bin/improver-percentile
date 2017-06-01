@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # -----------------------------------------------------------------------------
 # (C) British Crown Copyright 2017 Met Office.
@@ -28,50 +29,30 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-"""Unit tests for the percentile.PercentileConverter plugin."""
+"""Script to convert ensemble member data into percentiled data."""
 
-
-import unittest
+import argparse
 
 import iris
-import iris.cube
-from iris.coords import DimCoord
-from iris.tests import IrisTest
-import numpy as np
 
 from improver.percentile import PercentileConverter
 
 
-def _make_cube():
-    """Make a test cube."""
-    data = np.arange(36).reshape(3, 3, 4)
-    cube = iris.cube.Cube(data, "air_pressure_at_sea_level", units="Pa")
-    cube.add_dim_coord(DimCoord([0, 1, 2], 'realization', units=1), 0)
-    cube.add_dim_coord(DimCoord([-45, 10, 25], 'latitude', units='degrees'), 1)
-    cube.add_dim_coord(
-        DimCoord([50, 100, 120, 180], 'longitude', units='degrees'), 2)
-    return cube
+def main():
+    """Load in arguments and get going."""
+    parser = argparse.ArgumentParser(
+        description='Convert realization (member) data into percentiled ' +
+                    'data using the PercentileConverter plugin ' +
+                    'for a file with one cube.')
+    parser.add_argument('input_filepath', metavar='INPUT_FILE',
+                        help='A path to an input NetCDF file to be processed')
+    parser.add_argument('output_filepath', metavar='OUTPUT_FILE',
+                        help='The output path for the processed NetCDF')
+    args = parser.parse_args()
+    cube = iris.load_cube(args.input_filepath)
+    result = PercentileConverter("realization").process(cube)
+    iris.save(result, args.output_filepath, unlimited_dimensions=[])
 
 
-class TestPercentiles(IrisTest):
-
-    """Test the creation of percentiles by the plugin."""
-
-    def test_basic(self):
-        """Create and test percentiles."""
-        plugin = PercentileConverter('realization')
-        percentiles_result = plugin.process(_make_cube())
-        self.assertIsInstance(percentiles_result, iris.cube.Cube)
-        coord_names = [c.name() for c in percentiles_result.coords()]
-        print percentiles_result, type(percentiles_result)
-        name = 'percentile_over_realization'
-        self.assertIn(name, coord_names)
-        percentiles_coord = percentiles_result.coord(name)
-        percentiles = [5, 10, 20, 25, 30, 40, 50, 60, 70, 75, 80, 90, 95]
-        self.assertArrayEqual(percentiles_coord.points, percentiles)
-        self.assertArrayAlmostEqual(percentiles_result[:3, 0, 0].data,
-                                    [1.2, 2.4, 4.8])
-
-
-if __name__ == '__main__':
-    unittest.main()
+if __name__ == "__main__":
+    main()
