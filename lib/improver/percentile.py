@@ -30,12 +30,12 @@
 # POSSIBILITY OF SUCH DAMAGE.
 """Module containing percentiling classes."""
 
-
 import iris
 from iris.exceptions import CoordinateNotFoundError
-from iris import FUTURE
+import numpy as np
 
-FUTURE.netcdf_promote = True
+
+iris.FUTURE.netcdf_promote = True
 
 
 class PercentileConverter(object):
@@ -111,6 +111,8 @@ class PercentileConverter(object):
             collapse.
 
         """
+        iris.analysis.PERCENTILE.call_func = _percentile_replacement
+
         # Store data type and enforce the same type on return.
         data_type = cube.dtype
         # Test that collapse coords are present in cube before proceding.
@@ -129,3 +131,8 @@ class PercentileConverter(object):
         raise CoordinateNotFoundError(
             "Coordinate '{}' not found in cube passed to {}.".format(
                 self.collapse_coord, self.__class__.__name__))
+
+
+def _percentile_replacement(data, axis, percent, **kwargs):
+    percentiled_data = np.percentile(data, percent, axis=axis)
+    return np.rollaxis(percentiled_data, 0, data.ndim)
