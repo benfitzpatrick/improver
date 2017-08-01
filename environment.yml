@@ -9,6 +9,7 @@ channels:
 dependencies:
   - sphinx
   - iris
+  - biggus
   - cartopy
   - matplotlib<1.9
   - netcdf4
