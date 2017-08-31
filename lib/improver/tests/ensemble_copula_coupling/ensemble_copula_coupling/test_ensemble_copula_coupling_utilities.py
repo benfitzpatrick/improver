@@ -88,7 +88,7 @@ class Test_concatenate_2d_array_with_2d_array_endpoints(IrisTest):
         """
         input_array = np.array([-40, 200, 1000])
         msg = "all the input arrays must have same number of dimensions"
-        with self.assertRaisesRegexp(ValueError, msg):
+        with self.assertRaisesRegex(ValueError, msg):
             concatenate_2d_array_with_2d_array_endpoints(
                 input_array, -100, 10000)
 
@@ -98,7 +98,7 @@ class Test_concatenate_2d_array_with_2d_array_endpoints(IrisTest):
         """
         input_array = np.array([[[-40, 200, 1000]]])
         msg = "all the input arrays must have same number of dimensions"
-        with self.assertRaisesRegexp(ValueError, msg):
+        with self.assertRaisesRegex(ValueError, msg):
             concatenate_2d_array_with_2d_array_endpoints(
                 input_array, -100, 10000)
 
@@ -145,7 +145,7 @@ class Test_choose_set_of_percentiles(IrisTest):
         """
         no_of_percentiles = 3
         msg = "The unknown sampling option is not yet implemented"
-        with self.assertRaisesRegexp(ValueError, msg):
+        with self.assertRaisesRegex(ValueError, msg):
             choose_set_of_percentiles(no_of_percentiles, sampling="unknown")
 
 
@@ -215,7 +215,7 @@ class Test_create_cube_with_percentiles(IrisTest):
              len(cube.coord("latitude").points),
              len(cube.coord("longitude").points)])
         msg = "could not convert string to float"
-        with self.assertRaisesRegexp(ValueError, msg):
+        with self.assertRaisesRegex(ValueError, msg):
             create_cube_with_percentiles(percentiles, cube, cube_data)
 
     def test_percentile_points(self):
@@ -259,7 +259,7 @@ class Test_create_cube_with_percentiles(IrisTest):
         cube_data = self.cube_data + 2
         percentiles = [10, 50]
         msg = "Unequal lengths"
-        with self.assertRaisesRegexp(ValueError, msg):
+        with self.assertRaisesRegex(ValueError, msg):
             create_cube_with_percentiles(
                 percentiles, cube, cube_data)
 
@@ -274,7 +274,7 @@ class Test_create_cube_with_percentiles(IrisTest):
         cube_data = self.cube_data + 2
         percentiles = [10, 50, 90]
         msg = "Unequal lengths"
-        with self.assertRaisesRegexp(ValueError, msg):
+        with self.assertRaisesRegex(ValueError, msg):
             create_cube_with_percentiles(
                 percentiles, cube, cube_data)
 
@@ -359,7 +359,7 @@ class Test_get_bounds_of_distribution(IrisTest):
         cube_name = "nonsense"
         cube_units = Unit("degreesC")
         msg = "The bounds_pairing_key"
-        with self.assertRaisesRegexp(KeyError, msg):
+        with self.assertRaisesRegex(KeyError, msg):
             get_bounds_of_distribution(cube_name, cube_units)
 
 
@@ -397,7 +397,7 @@ class Test_insert_lower_and_upper_endpoint_to_1d_array(IrisTest):
         """
         percentiles = np.array([[-40, 200, 1000], [-40, 200, 1000]])
         msg = "all the input arrays must have same number of dimensions"
-        with self.assertRaisesRegexp(ValueError, msg):
+        with self.assertRaisesRegex(ValueError, msg):
             insert_lower_and_upper_endpoint_to_1d_array(
                 percentiles, -100, 10000)
 
@@ -452,7 +452,7 @@ class Test_restore_non_probabilistic_dimensions(IrisTest):
         cube.transpose([3, 2, 1, 0])
         plen = len(cube.coord("percentile_over_realization").points)
         msg = "coordinate is a dimension coordinate but is not"
-        with self.assertRaisesRegexp(ValueError, msg):
+        with self.assertRaisesRegex(ValueError, msg):
             restore_non_probabilistic_dimensions(
                 cube.data, cube, "percentile_over_realization", plen)
 
@@ -533,7 +533,7 @@ class Test_restore_non_probabilistic_dimensions(IrisTest):
         cube = self.current_temperature_forecast_cube
         plen = len(cube.coord("percentile_over_realization").points)
         msg = "coordinate is not available"
-        with self.assertRaisesRegexp(CoordinateNotFoundError, msg):
+        with self.assertRaisesRegex(CoordinateNotFoundError, msg):
             restore_non_probabilistic_dimensions(
                 cube.data, cube, "nonsense", plen)
 

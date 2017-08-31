@@ -256,7 +256,7 @@ class Test_pad_coord(IrisTest):
         width = 1
         method = "add"
         msg = "Non-uniform increments between grid points"
-        with self.assertRaisesRegexp(ValueError, msg):
+        with self.assertRaisesRegex(ValueError, msg):
             SquareNeighbourhood.pad_coord(coord, width, method)
 
     def test_remove(self):
@@ -578,8 +578,8 @@ class Test_mean_over_neighbourhood(IrisTest):
              [8., 16., 24., 32., 39., 47., 55., 63., 71.],
              [9., 18., 27., 36., 44., 53., 62., 71., 80.]])
         self.padded_cube = Cube(self.padded_data, long_name='test')
-        self.padded_x_coord = DimCoord(range(0, 9), standard_name='longitude')
-        self.padded_y_coord = DimCoord(range(0, 9), standard_name='latitude')
+        self.padded_x_coord = DimCoord(list(range(0, 9)), standard_name='longitude')
+        self.padded_y_coord = DimCoord(list(range(0, 9)), standard_name='latitude')
         self.padded_cube.add_dim_coord(self.padded_x_coord, 0)
         self.padded_cube.add_dim_coord(self.padded_y_coord, 1)
         self.padded_result = np.array(

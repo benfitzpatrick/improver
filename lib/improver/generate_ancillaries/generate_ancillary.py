@@ -267,7 +267,7 @@ class GenerateOrographyBandAncils(object):
           list of orographic band mask cubes.
         """
         cubelist = iris.cube.CubeList()
-        for dict_key, dict_bound in thresholds_dict.iteritems():
+        for dict_key, dict_bound in thresholds_dict.items():
             if len(dict_bound) == 0:
                 msg = 'No threshold(s) found for topographic type: {}'
                 raise ValueError(msg.format(dict_key))

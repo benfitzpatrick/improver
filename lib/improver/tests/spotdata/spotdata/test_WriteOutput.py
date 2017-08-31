@@ -88,7 +88,7 @@ class Test_write_output(IrisTest):
 
         method = 'unknown_file_type'
         msg = 'Unknown method ".*" passed to WriteOutput.'
-        with self.assertRaisesRegexp(AttributeError, msg):
+        with self.assertRaisesRegex(AttributeError, msg):
             Plugin(method, self.data_directory).process(self.cube)
 
     def test_invalid_output_path(self):
@@ -96,7 +96,7 @@ class Test_write_output(IrisTest):
 
         method = 'as_netcdf'
         msg = 'Permission denied'
-        with self.assertRaisesRegexp(IOError, msg):
+        with self.assertRaisesRegex(IOError, msg):
             Plugin(method, '/').process(self.cube)
 
 

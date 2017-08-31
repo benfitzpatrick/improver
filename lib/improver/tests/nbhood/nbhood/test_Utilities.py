@@ -126,7 +126,7 @@ class Test_find_required_lead_times(IrisTest):
         cube = add_forecast_reference_time_and_forecast_period(set_up_cube())
         cube.coord("forecast_period").units = Unit("Celsius")
         msg = "For forecast_period"
-        with self.assertRaisesRegexp(ValueError, msg):
+        with self.assertRaisesRegex(ValueError, msg):
             Utilities.find_required_lead_times(cube)
 
     def test_check_forecast_reference_time_unit_conversion_exception(self):
@@ -139,7 +139,7 @@ class Test_find_required_lead_times(IrisTest):
         cube.remove_coord("forecast_period")
         cube.coord("forecast_reference_time").units = Unit("Celsius")
         msg = "For time/forecast_reference_time"
-        with self.assertRaisesRegexp(ValueError, msg):
+        with self.assertRaisesRegex(ValueError, msg):
             Utilities.find_required_lead_times(cube)
 
     def test_exception_raised(self):
@@ -150,7 +150,7 @@ class Test_find_required_lead_times(IrisTest):
         """
         cube = set_up_cube()
         msg = "The forecast period coordinate is not available"
-        with self.assertRaisesRegexp(CoordinateNotFoundError, msg):
+        with self.assertRaisesRegex(CoordinateNotFoundError, msg):
             Utilities.find_required_lead_times(cube)
 
 

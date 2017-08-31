@@ -54,9 +54,9 @@ class Test_nonlinear_weights(IrisTest):
     def test_fails_cval_set_wrong(self):
         """Test it fails if cval is not >0 and <=1 """
         msg = ('cval must be greater than 0.0')
-        with self.assertRaisesRegexp(ValueError, msg):
+        with self.assertRaisesRegex(ValueError, msg):
             NonLinearWeights(-0.1).nonlinear_weights(3)
-        with self.assertRaisesRegexp(ValueError, msg):
+        with self.assertRaisesRegex(ValueError, msg):
             NonLinearWeights(1.85).nonlinear_weights(3)
 
     def test_returns_correct_values(self):
@@ -87,7 +87,7 @@ class Test_process(IrisTest):
         """Test that the resulting weights add up to one. """
         plugin = NonLinearWeights()
         result = plugin.process(self.cube, self.coord_name, self.coord_vals)
-        self.assertAlmostEquals(result.sum(), 1.0)
+        self.assertAlmostEqual(result.sum(), 1.0)
 
     def test_fails_coord_not_in_cube(self):
         """Test it raises a Value Error if coord not in the cube. """
@@ -95,7 +95,7 @@ class Test_process(IrisTest):
         plugin = NonLinearWeights()
         msg = ('The coord for this plugin must be '
                'an existing coordinate in the input cube')
-        with self.assertRaisesRegexp(ValueError, msg):
+        with self.assertRaisesRegex(ValueError, msg):
             plugin.process(self.cube, coord)
 
     def test_fails_input_not_a_cube(self):
@@ -104,7 +104,7 @@ class Test_process(IrisTest):
         notacube = 0.0
         msg = ('The first argument must be an instance of '
                'iris.cube.Cube')
-        with self.assertRaisesRegexp(ValueError, msg):
+        with self.assertRaisesRegex(ValueError, msg):
             plugin.process(notacube, self.coord_name)
 
     def test_fails_if_cval_not_valid(self):
@@ -115,10 +115,10 @@ class Test_process(IrisTest):
         plugin = NonLinearWeights(cval=-1.0)
         msg = ('cval must be greater than 0.0 and less '
                'than or equal to 1.0')
-        with self.assertRaisesRegexp(ValueError, msg):
+        with self.assertRaisesRegex(ValueError, msg):
             plugin.process(self.cube, self.coord_name, self.coord_vals)
         plugin2 = NonLinearWeights(cval=1.1)
-        with self.assertRaisesRegexp(ValueError, msg):
+        with self.assertRaisesRegex(ValueError, msg):
             plugin2.process(self.cube, self.coord_name, self.coord_vals)
 
     def test_works_if_scalar_coord(self):

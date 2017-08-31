@@ -250,7 +250,7 @@ class ExtractData(object):
 
         stat_coord = []
         for crd in stat_coordinates:
-            stat_coord += [coord for coord in cube_dimension_order.keys()
+            stat_coord += [coord for coord in list(cube_dimension_order.keys())
                            if crd in coord]
         if len(stat_coord) >= 1:
             if len(stat_coord) > 1:
@@ -260,7 +260,7 @@ class ExtractData(object):
                 warnings.warn(msg)
 
             stat_index = cube_dimension_order[stat_coord[0]]
-            new_order = range(len(cube_dimension_order))
+            new_order = list(range(len(cube_dimension_order)))
             new_order.pop(stat_index)
             new_order.insert(0, stat_index)
             cube.transpose(new_order)
@@ -329,16 +329,16 @@ class ExtractData(object):
         # Build the new auxiliary coordinates.
         crds = self._aux_coords_to_make()
         aux_crds = []
-        for key, kwargs in zip(crds.keys(), crds.itervalues()):
-            aux_data = np.array([entry[key] for entry in sites.itervalues()])
+        for key, kwargs in zip(list(crds.keys()), iter(crds.values())):
+            aux_data = np.array([entry[key] for entry in sites.values()])
             crd = self._build_coordinate(aux_data, key, **kwargs)
             aux_crds.append(crd)
 
         # Construct zipped lists of coordinates and indices. New aux coords are
         # associated with the index dimension.
         n_dim_coords = len(dim_coords)
-        dim_coords = zip(dim_coords, range(n_dim_coords))
-        aux_coords = zip(aux_crds, [n_dim_coords-1]*len(aux_crds))
+        dim_coords = list(zip(dim_coords, list(range(n_dim_coords))))
+        aux_coords = list(zip(aux_crds, [n_dim_coords-1]*len(aux_crds)))
 
         # Copy other cube metadata.
         metadata_dict = copy.deepcopy(cube.metadata._asdict())
@@ -428,7 +428,7 @@ class ExtractData(object):
 
         data = np.empty(shape=(len(sites)), dtype=float)
 
-        for i_site, site in enumerate(sites.itervalues()):
+        for i_site, site in enumerate(sites.values()):
             i, j = neighbours['i'][i_site], neighbours['j'][i_site]
 
             altitude = site['altitude']

@@ -119,7 +119,7 @@ class Test__add_bounds_to_thresholds_and_probabilities(IrisTest):
         bounds_pairing = (-40, 50)
         plugin = Plugin()
         msg = "The end points added to the threshold values for"
-        with self.assertRaisesRegexp(ValueError, msg):
+        with self.assertRaisesRegex(ValueError, msg):
             plugin._add_bounds_to_thresholds_and_probabilities(
                 threshold_points, probabilities_for_cdf, bounds_pairing)
 
@@ -269,7 +269,7 @@ class Test__probabilities_to_percentiles(IrisTest):
         bounds_pairing = (-40, 50)
         plugin = Plugin()
         msg = "The probability values used to construct the"
-        with self.assertRaisesRegexp(ValueError, msg):
+        with self.assertRaisesRegex(ValueError, msg):
             plugin._probabilities_to_percentiles(
                 cube, percentiles, bounds_pairing)
 

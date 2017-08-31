@@ -77,7 +77,7 @@ def get_ancillary_data(diagnostics, ancillary_path):
 
     # Check if the land mask is used for any diagnostics.
     if any([(diagnostics[key]['neighbour_finding']['land_constraint'])
-            for key in diagnostics.keys()]):
+            for key in list(diagnostics.keys())]):
         try:
             land = Load('single_file').process(
                 ancillary_path + '/land_mask.nc', 'land_binary_mask')

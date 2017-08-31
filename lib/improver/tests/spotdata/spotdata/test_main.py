@@ -177,7 +177,7 @@ class Test_run_spotdata(Test_main):
 
         self.kwargs.pop('site_properties', None)
         msg = 'No SpotData site information has been provided'
-        with self.assertRaisesRegexp(ValueError, msg):
+        with self.assertRaisesRegex(ValueError, msg):
             Function(*self.args, **self.kwargs)
 
     def test_no_valid_times(self):
@@ -187,7 +187,7 @@ class Test_run_spotdata(Test_main):
         self.kwargs['forecast_date'] = '20150217'
         msg = 'No data available at given forecast times.'
 
-        with self.assertRaisesRegexp(Exception, msg):
+        with self.assertRaisesRegex(Exception, msg):
             Function(*self.args, **self.kwargs)
 
 
@@ -202,7 +202,7 @@ class Test_process_diagnostic(Test_main):
         forecast_times = ['not_used']
         data_path = ''  # Testing this data path not containing data.
         msg = 'No relevant data files found'
-        with self.assertRaisesRegexp(IOError, msg):
+        with self.assertRaisesRegex(IOError, msg):
             process_diagnostic(self.cube.name(), neighbours, self.sites,
                                forecast_times, data_path, self.ancillary_data)
 

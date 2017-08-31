@@ -126,7 +126,7 @@ def check_cube_coordinates(cube, new_cube, exception_coordinates=None):
         correct_order[correct_order >= dim] += 1
         correct_order = np.insert(correct_order, dim, dim)
 
-    if (len(cube_dimension_order.keys())+len(exception_coordinates) ==
+    if (len(list(cube_dimension_order.keys()))+len(exception_coordinates) ==
             len(correct_order)):
         new_cube.transpose(correct_order)
     else:

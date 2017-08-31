@@ -111,7 +111,7 @@ class Test_process(IrisTest):
         coord = "notset"
         plugin = WeightedBlendAcrossWholeDimension(coord)
         msg = ('Expected to find exactly 1  coordinate, but found none.')
-        with self.assertRaisesRegexp(CoordinateNotFoundError, msg):
+        with self.assertRaisesRegex(CoordinateNotFoundError, msg):
             plugin.process(self.cube)
 
     def test_fails_input_not_a_cube(self):
@@ -121,7 +121,7 @@ class Test_process(IrisTest):
         notacube = 0.0
         msg = ('The first argument must be an instance of ' +
                'iris.cube.Cube')
-        with self.assertRaisesRegexp(ValueError, msg):
+        with self.assertRaisesRegex(ValueError, msg):
             plugin.process(notacube)
 
     def test_fails_perc_coord_not_dim(self):
@@ -133,7 +133,7 @@ class Test_process(IrisTest):
                                         long_name="percentile_over_time"))
         msg = ('The percentile coord must be a dimension '
                'of the cube.')
-        with self.assertRaisesRegexp(ValueError, msg):
+        with self.assertRaisesRegex(ValueError, msg):
             plugin.process(new_cube)
 
     def test_fails_only_one_percentile_value(self):
@@ -147,7 +147,7 @@ class Test_process(IrisTest):
                                         long_name="time"), 1)
         msg = ('Percentile coordinate does not have enough points'
                ' in order to blend. Must have at least 2 percentiles.')
-        with self.assertRaisesRegexp(ValueError, msg):
+        with self.assertRaisesRegex(ValueError, msg):
             plugin.process(new_cube)
 
     def test_fails_more_than_one_perc_coord(self):
@@ -159,7 +159,7 @@ class Test_process(IrisTest):
                                         long_name="percentile_over_dummy"))
         msg = ('There should only be one percentile coord '
                'on the cube.')
-        with self.assertRaisesRegexp(ValueError, msg):
+        with self.assertRaisesRegex(ValueError, msg):
             plugin.process(new_cube)
 
     def test_fails_weights_shape(self):
@@ -170,7 +170,7 @@ class Test_process(IrisTest):
         weights = [0.1, 0.2, 0.7]
         msg = ('The weights array must match the shape ' +
                'of the coordinate in the input cube')
-        with self.assertRaisesRegexp(ValueError, msg):
+        with self.assertRaisesRegex(ValueError, msg):
             plugin.process(self.cube, weights)
 
     def test_coord_adjust_set(self):
@@ -179,7 +179,7 @@ class Test_process(IrisTest):
         coord_adjust = example_coord_adjust
         plugin = WeightedBlendAcrossWholeDimension(coord, coord_adjust)
         result = plugin.process(self.cube)
-        self.assertAlmostEquals(result.coord(coord).points, [402193.5])
+        self.assertAlmostEqual(result.coord(coord).points, [402193.5])
 
     def test_scalar_coord(self):
         """Test it works on scalar coordinate

@@ -122,7 +122,7 @@ def _slice_over_coordinate(cubes, coord_to_slice_over, remove_history=True):
                 coord_slice = iris.util.new_axis(
                     coord_slice, coord_to_slice_over)
                 if (remove_history and
-                        "history" in coord_slice.attributes.keys()):
+                        "history" in list(coord_slice.attributes.keys())):
                     coord_slice.attributes.pop("history")
                 sliced_by_coord_cubelist.append(coord_slice)
         else:

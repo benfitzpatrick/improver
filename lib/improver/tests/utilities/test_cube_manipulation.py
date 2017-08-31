@@ -177,7 +177,7 @@ class Test__associate_any_coordinate_with_master_coordinate(IrisTest):
             DimCoord([0], "forecast_period", units="hours"))
 
         msg = "The master coordinate for associating other coordinates"
-        with self.assertRaisesRegexp(ValueError, msg):
+        with self.assertRaisesRegex(ValueError, msg):
             _associate_any_coordinate_with_master_coordinate(
                 cube1, master_coord="time",
                 coordinates=["forecast_reference_time", "forecast_period"])
@@ -284,8 +284,8 @@ class Test__slice_over_coordinate(IrisTest):
         cubelist = iris.cube.CubeList([cube1, cube2])
 
         result = _slice_over_coordinate(cubelist, "time")
-        self.assertNotIn("history", result[0].attributes.keys())
-        self.assertNotIn("history", result[1].attributes.keys())
+        self.assertNotIn("history", list(result[0].attributes.keys()))
+        self.assertNotIn("history", list(result[1].attributes.keys()))
 
     def test_cubelist_no_history_removal(self):
         """
@@ -303,8 +303,8 @@ class Test__slice_over_coordinate(IrisTest):
 
         result = _slice_over_coordinate(
             cubelist, "time", remove_history=False)
-        self.assertIn("history", result[0].attributes.keys())
-        self.assertIn("history", result[1].attributes.keys())
+        self.assertIn("history", list(result[0].attributes.keys()))
+        self.assertIn("history", list(result[1].attributes.keys()))
 
 
 class Test__strip_var_names(IrisTest):
@@ -375,7 +375,7 @@ class Test_concatenate_cubes(IrisTest):
         """
         cubes = iris.cube.CubeList([self.cube, self.cube])
         msg = "An unexpected problem prevented concatenation."
-        with self.assertRaisesRegexp(ConcatenateError, msg):
+        with self.assertRaisesRegex(ConcatenateError, msg):
             concatenate_cubes(cubes)
 
     def test_cubelist_type_and_data(self):
@@ -442,7 +442,7 @@ class Test_concatenate_cubes(IrisTest):
         cubelist = iris.cube.CubeList([cube2, cube3])
 
         msg = "failed to concatenate into a single cube"
-        with self.assertRaisesRegexp(ConcatenateError, msg):
+        with self.assertRaisesRegex(ConcatenateError, msg):
             concatenate_cubes(cubelist, coords_to_slice_over=["time"])
 
     def test_cubelist_slice_over_time_only(self):

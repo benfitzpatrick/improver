@@ -83,9 +83,9 @@ class Test__make_mask_cube(IrisTest):
         """test checking that an exception is raised when the _make_mask_cube
         method is called with an incorrect number of bounds."""
         emsg = "should have only an upper and lower limit"
-        with self.assertRaisesRegexp(TypeError, emsg):
+        with self.assertRaisesRegex(TypeError, emsg):
             _make_mask_cube(self.mask, self.key, self.coords, [0])
-        with self.assertRaisesRegexp(TypeError, emsg):
+        with self.assertRaisesRegex(TypeError, emsg):
             _make_mask_cube(self.mask,
                             self.key,
                             self.coords,
@@ -95,7 +95,7 @@ class Test__make_mask_cube(IrisTest):
         """test checking that an exception is raised when the _make_mask_cube
         method is called with only an upper bound."""
         emsg = "should have both an upper and lower limit"
-        with self.assertRaisesRegexp(TypeError, emsg):
+        with self.assertRaisesRegex(TypeError, emsg):
             _make_mask_cube(self.mask, self.key, self.coords,
                             topographic_bounds=[None, self.upper])
 
@@ -138,7 +138,7 @@ class Test_find_standard_ancil(IrisTest):
         """test the correct exception is raised when stage ancillaries
            are not found"""
         os.remove(self.stage)
-        with self.assertRaisesRegexp(IOError, 'Cannot find input ancillary'):
+        with self.assertRaisesRegex(IOError, 'Cannot find input ancillary'):
             find_standard_ancil(self.stage)
 
     def test_custom_msg_fail(self):
@@ -146,7 +146,7 @@ class Test_find_standard_ancil(IrisTest):
            argument is passed in and the file cannot be found"""
         os.remove(self.stage)
         msg = "That file doesn't exist"
-        with self.assertRaisesRegexp(IOError, msg):
+        with self.assertRaisesRegex(IOError, msg):
             find_standard_ancil(self.stage, msg)
 
 if __name__ == "__main__":

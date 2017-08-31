@@ -53,7 +53,7 @@ class Test_extrema(IrisTest):
     def setUp(self):
         """Set up the initial conditions for tests."""
 
-        times = range(414048, 414097, 1)  # Hours since 00Z-01-01-1970
+        times = list(range(414048, 414097, 1))  # Hours since 00Z-01-01-1970
         n_times, n_data = len(times), 27
         indices = DimCoord(np.arange(n_data), long_name='index',
                            units='1')
@@ -65,13 +65,13 @@ class Test_extrema(IrisTest):
         forecast_ref_time.rename('forecast_reference_time')
 
         # UTC offset arranged to sequence -12 --> 14.
-        utc_offsets = range(-12, 15) * int(n_data/24)
+        utc_offsets = list(range(-12, 15)) * int(n_data/24)
         utc_offset = AuxCoord(utc_offsets, long_name='utc_offset',
                               units='hours')
         # Data arranged to ascend 0 --> n_data, so each site shows a constant
         # temperature over time; this will need to be modified to check
         # analysis collapse method.
-        data = np.array([range(n_data)*n_times])
+        data = np.array([list(range(n_data))*n_times])
         data.resize(n_times, n_data)
 
         cube = Cube(data,
@@ -184,7 +184,7 @@ class Test_ExtractExtrema(Test_extrema):
 
         # Expected data array.
         expected = np.full(self.n_data, np.nan)
-        expected[0:12] = range(12)
+        expected[0:12] = list(range(12))
         expected = np.ma.masked_invalid(expected)
 
         result = Plugin(24, start_hour=0).process(self.cube)
@@ -264,7 +264,7 @@ class Test_get_datetime_limits(Test_extrema):
         """Check an error is raised if a non-integer hour is provided."""
 
         msg = "integer argument expected, got float"
-        with self.assertRaisesRegexp(TypeError, msg):
+        with self.assertRaisesRegex(TypeError, msg):
             get_datetime_limits(self.time_coord, start_hour=6.2)
 
 
@@ -295,7 +295,7 @@ class Test_make_local_time_cube(Test_extrema):
         # one valid, before reaching local times for which all sites have valid
         # data).
         for i in range(n_times/2 + 12):
-            values = range(min(n_data, i+1))
+            values = list(range(min(n_data, i+1)))
             expected = np.full(n_data, np.nan)
             expected[0:i+1] = values
             expected = np.ma.masked_invalid(expected)
@@ -306,7 +306,7 @@ class Test_make_local_time_cube(Test_extrema):
         # (All sites have valid data at initial local time, but by the end of
         # the sequence only far eastern sites still have valid data).
         for ii, i in enumerate(range(n_times/2 + 12, n_times)):
-            base = range(0, 27)
+            base = list(range(0, 27))
             values = base[ii+1:]
             expected = np.full(n_data, np.nan)
             expected[ii+1:] = values

@@ -176,7 +176,7 @@ class Test_correct_collapsed_coordinates(IrisTest):
         new_cube.add_dim_coord(DimCoord([0, 1, 2], "forecast_period",
                                         units="hours"), 0)
         message = "New points shape must match existing points shape."
-        with self.assertRaisesRegexp(ValueError, message):
+        with self.assertRaisesRegex(ValueError, message):
             self.plugin.correct_collapsed_coordinates(orig_cube, new_cube,
                                                       ['forecast_period'])
 
@@ -185,7 +185,7 @@ class Test_correct_collapsed_coordinates(IrisTest):
            a coordinate that doesn't exist."""
         self.new_cube.remove_coord('forecast_period')
         message = "Expected to find exactly 1  coordinate, but found none."
-        with self.assertRaisesRegexp(CoordinateNotFoundError, message):
+        with self.assertRaisesRegex(CoordinateNotFoundError, message):
             self.plugin.correct_collapsed_coordinates(self.orig_cube,
                                                       self.new_cube,
                                                       ['forecast_period'])

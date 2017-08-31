@@ -260,7 +260,7 @@ class Test_setup(IrisTest):
             ancillary_data['orography'] = ancillary_data['orography'].regrid(
                 new_cube, iris.analysis.Nearest())
         if additional_data is not None:
-            for ad in additional_data.keys():
+            for ad in list(additional_data.keys()):
                 additional_data[ad] = additional_data[ad].regrid(
                     new_cube, iris.analysis.Nearest())
 
@@ -312,7 +312,7 @@ class Test_ExtractData(Test_setup):
         msg = 'Unknown method'
         with iris.FUTURE.context(cell_datetime_objects=True):
             cube = self.cube.extract(self.time_extract)
-        with self.assertRaisesRegexp(AttributeError, msg):
+        with self.assertRaisesRegex(AttributeError, msg):
             plugin.process(cube, self.sites, self.neighbour_list, {}, None,
                            **self.kwargs)
 
@@ -411,7 +411,7 @@ class Test_make_cube(Test_setup):
         data = np.array([123])
         self.cube.remove_coord('forecast_reference_time')
         msg = 'No forecast reference time found on source cube.'
-        with self.assertRaisesRegexp(CoordinateNotFoundError, msg):
+        with self.assertRaisesRegex(CoordinateNotFoundError, msg):
             plugin(self.cube, data, self.sites)
 
     def test_aux_coord_and_metadata(self):

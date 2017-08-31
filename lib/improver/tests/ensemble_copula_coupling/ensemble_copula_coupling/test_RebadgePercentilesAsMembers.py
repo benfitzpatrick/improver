@@ -112,7 +112,7 @@ class Test_process(IrisTest):
         cube.coord("percentile_over_realization").rename("realization")
         plugin = Plugin()
         msg = "The percentile coordinate could not be found"
-        with self.assertRaisesRegexp(CoordinateNotFoundError, msg):
+        with self.assertRaisesRegex(CoordinateNotFoundError, msg):
             plugin.process(cube)
 
 

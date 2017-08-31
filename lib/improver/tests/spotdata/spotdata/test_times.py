@@ -120,7 +120,7 @@ class Test_get_forecast_times(IrisTest):
 
         forecast_date = '17MARCH2017'
         msg = 'Date .* is in unexpected format'
-        with self.assertRaisesRegexp(ValueError, msg):
+        with self.assertRaisesRegex(ValueError, msg):
             Function(144, forecast_date=forecast_date, forecast_time=6)
 
 

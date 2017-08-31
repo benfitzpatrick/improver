@@ -55,16 +55,16 @@ class Test_linear_weights(IrisTest):
     def test_fails_y0val_set_wrong(self):
         """Test it fails if y0val not set properly """
         msg = ('y0val must be a float > 0.0')
-        with self.assertRaisesRegexp(ValueError, msg):
+        with self.assertRaisesRegex(ValueError, msg):
             LinearWeights(y0val=-0.1).linear_weights(3)
-        with self.assertRaisesRegexp(ValueError, msg):
+        with self.assertRaisesRegex(ValueError, msg):
             LinearWeights(y0val=2).linear_weights(3)
 
     def test_fails_ynval_and_slope_set(self):
         """Test it fails if y0val not set properly """
         msg = ('Relative end point weight or slope must be set'
                ' but not both.')
-        with self.assertRaisesRegexp(ValueError, msg):
+        with self.assertRaisesRegex(ValueError, msg):
             LinearWeights(ynval=3.0, slope=-1.0).linear_weights(3)
 
     def test_returns_correct_values_num_of_weights_one(self):
@@ -109,7 +109,7 @@ class Test_process(IrisTest):
         """Test that the resulting weights add up to one. """
         plugin = LinearWeights()
         result = plugin.process(self.cube, self.coord_name, self.coord_vals)
-        self.assertAlmostEquals(result.sum(), 1.0)
+        self.assertAlmostEqual(result.sum(), 1.0)
 
     def test_fails_coord_not_in_cube(self):
         """Test it raises a Value Error if coord not in the cube. """
@@ -117,7 +117,7 @@ class Test_process(IrisTest):
         plugin = LinearWeights()
         msg = ('The coord for this plugin must be '
                'an existing coordinate in the input cube')
-        with self.assertRaisesRegexp(ValueError, msg):
+        with self.assertRaisesRegex(ValueError, msg):
             plugin.process(self.cube, coord)
 
     def test_fails_input_not_a_cube(self):
@@ -126,14 +126,14 @@ class Test_process(IrisTest):
         notacube = 0.0
         msg = ('The first argument must be an instance of '
                'iris.cube.Cube')
-        with self.assertRaisesRegexp(ValueError, msg):
+        with self.assertRaisesRegex(ValueError, msg):
             plugin.process(notacube, self.coord_name)
 
     def test_fails_y0val_lessthan_zero(self):
         """Test it raises a Value Error if y0val less than zero. """
         plugin = LinearWeights(y0val=-10.0)
         msg = ('y0val must be a float > 0.0')
-        with self.assertRaisesRegexp(ValueError, msg):
+        with self.assertRaisesRegex(ValueError, msg):
             plugin.process(self.cube, self.coord_name, self.coord_vals)
 
     def test_fails_ynval_and_slope_set(self):
@@ -141,7 +141,7 @@ class Test_process(IrisTest):
         plugin = LinearWeights(y0val=10.0, slope=-5.0, ynval=5.0)
         msg = ('Relative end point weight or slope must be set'
                ' but not both.')
-        with self.assertRaisesRegexp(ValueError, msg):
+        with self.assertRaisesRegex(ValueError, msg):
             plugin.process(self.cube, self.coord_name, self.coord_vals)
 
     def test_fails_weights_negative(self):
@@ -150,7 +150,7 @@ class Test_process(IrisTest):
         cubenew = add_realizations(self.cube, 6)
         coord = cubenew.coord('realization')
         msg = 'Weights must be positive'
-        with self.assertRaisesRegexp(ValueError, msg):
+        with self.assertRaisesRegex(ValueError, msg):
             plugin.process(cubenew, coord)
 
     def test_works_scalar_coord(self):

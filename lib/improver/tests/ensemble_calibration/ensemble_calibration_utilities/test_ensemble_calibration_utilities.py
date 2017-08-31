@@ -231,7 +231,7 @@ class Test_ensure_dimension_is_the_zeroth_dimension(IrisTest):
         cube = self.cube[0, :, :, :]
         cube.remove_coord("realization")
         msg = "not a dimension coordinate"
-        with self.assertRaisesRegexp(ValueError, msg):
+        with self.assertRaisesRegex(ValueError, msg):
             ensure_dimension_is_the_zeroth_dimension(cube, "realization")
 
 
@@ -279,7 +279,7 @@ class Test_rename_coordinate(IrisTest):
         """
         fake_cube = "fake"
         msg = "A Cube or CubeList is not provided for renaming"
-        with self.assertRaisesRegexp(TypeError, msg):
+        with self.assertRaisesRegex(TypeError, msg):
             rename_coordinate(
                 fake_cube, "realization", "ensemble_member_id")
 
@@ -357,7 +357,7 @@ class Test_check_predictor_of_mean_flag(IrisTest):
         predictor_of_mean_flag = "foo"
 
         msg = "The requested value for the predictor_of_mean_flag"
-        with self.assertRaisesRegexp(ValueError, msg):
+        with self.assertRaisesRegex(ValueError, msg):
             check_predictor_of_mean_flag(predictor_of_mean_flag)
 
 

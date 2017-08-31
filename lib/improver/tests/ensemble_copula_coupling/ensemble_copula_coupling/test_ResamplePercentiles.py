@@ -125,7 +125,7 @@ class Test__add_bounds_to_percentiles_and_forecast_values(IrisTest):
         bounds_pairing = (-40, 50)
         plugin = Plugin()
         msg = "The end points added to the forecast at percentiles"
-        with self.assertRaisesRegexp(ValueError, msg):
+        with self.assertRaisesRegex(ValueError, msg):
             plugin._add_bounds_to_percentiles_and_forecast_at_percentiles(
                 percentiles, forecast_at_percentiles, bounds_pairing)
 
@@ -139,7 +139,7 @@ class Test__add_bounds_to_percentiles_and_forecast_values(IrisTest):
         bounds_pairing = (-40, 50)
         plugin = Plugin()
         msg = "The percentiles must be in ascending order"
-        with self.assertRaisesRegexp(ValueError, msg):
+        with self.assertRaisesRegex(ValueError, msg):
             plugin._add_bounds_to_percentiles_and_forecast_at_percentiles(
                 percentiles, forecast_at_percentiles, bounds_pairing)
 

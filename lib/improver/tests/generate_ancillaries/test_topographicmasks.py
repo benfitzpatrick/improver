@@ -79,7 +79,7 @@ class Test_gen_orography_masks(IrisTest):
     def test_nonsensekey(self):
         """test the correct exception is raised for unknown keys"""
         exception_dict = {'nonsense': [[0, 10]]}
-        with self.assertRaisesRegexp(KeyError, 'Unknown threshold_dict key'):
+        with self.assertRaisesRegex(KeyError, 'Unknown threshold_dict key'):
             GenOrogMasks().gen_orography_masks(
                 self.orography, self.landmask, "nonsense",
                 exception_dict["nonsense"])

@@ -251,7 +251,7 @@ class Test_process(IrisTest):
         WeightsClass = ChooseDefaultWeightsTriangular(width, units="m")
         midpoint = 3600
         message = r"Unable to convert from 'Unit\('m'\)' to 'Unit\('hours'\)'"
-        with self.assertRaisesRegexp(ValueError, message):
+        with self.assertRaisesRegex(ValueError, message):
             WeightsClass.process(self.cube, self.coord_name, midpoint)
 
 
