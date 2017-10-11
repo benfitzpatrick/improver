@@ -52,7 +52,8 @@ function improver_test_doc {
 
 function improver_test_unit {
     # Unit tests.
-    python -m unittest discover
+    coverage run -m unittest discover
+    coverage report
     echo_ok "Unit tests"
 }
 
