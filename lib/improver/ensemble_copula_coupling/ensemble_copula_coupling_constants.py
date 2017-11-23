@@ -55,5 +55,8 @@ bounds_for_ecdf = {
     "wind_speed": bounds((0, 50), "m s^-1"),
     "air_pressure_at_sea_level": bounds((94000, 107000), "Pa"),
     "rainfall_rate": bounds((0, 0.00003), "m s-1"),
-    "snowfall_rate": bounds((0, 0.00001), "m s-1")
+    "lwe_rainfall_rate": bounds((0, 0.00003), "m s-1"),
+    "snowfall_rate": bounds((0, 0.00001), "m s-1"),
+    "lwe_snowfall_rate": bounds((0, 0.00001), "m s-1"),
+    "visibility_in_air": bounds((0, 10000), "m")
 }
