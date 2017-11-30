@@ -248,10 +248,13 @@ class BaseNeighbourhoodProcessing(object):
                     cubes.append(cube_slice)
                 cube_new = concatenate_cubes(cubes,
                                              coords_to_slice_over=["time"])
-            if cube_new.coords("realization", dim_coords=False):
+            if (cube_new.coords("realization", dim_coords=False) and
+                    len(cube_new.coord("realization").points) > 1):
                 cube_new = iris.util.new_axis(cube_new, "realization")
             cubelist.append(cube_new)
         combined_cube = cubelist.concatenate_cube()
+        combined_cube = iris.util.squeeze(combined_cube)
+
         # Promote dimensional coordinates that have been demoted to scalars.
         exception_coordinates = (
             find_dimension_coordinate_mismatch(
