@@ -54,6 +54,8 @@ bounds_for_ecdf = {
         bounds((-40-ABSOLUTE_ZERO, 50-ABSOLUTE_ZERO), "Kelvin")),
     "wind_speed": bounds((0, 50), "m s^-1"),
     "air_pressure_at_sea_level": bounds((94000, 107000), "Pa"),
+    ("cloud_base_altitude_assuming_only_consider_cloud_area" +
+     "_fraction_greater_than_2p5_oktas"): bounds((-300, 20000), "m"),
     "rainfall_rate": bounds((0, 0.00003), "m s-1"),
     "lwe_rainfall_rate": bounds((0, 0.00003), "m s-1"),
     "snowfall_rate": bounds((0, 0.00001), "m s-1"),
