@@ -34,8 +34,12 @@ import copy
 from iris.coords import CellMethod, DimCoord
 from iris.cube import Cube, CubeList
 from iris.exceptions import CoordinateNotFoundError
+from iris.util import new_axis
 import numpy as np
 import scipy.ndimage
+
+from improver.utilities.cube_checker import check_cube_coordinates
+
 
 # Maximum radius of the neighbourhood width in grid cells.
 MAX_DISTANCE_IN_GRID_CELLS = 500
@@ -330,4 +334,9 @@ class OccurrenceWithinVicinity(object):
         for cube_slice in cube.slices([cube.coord(axis='y'),
                                        cube.coord(axis='x')]):
             max_cubes.append(self.maximum_within_vicinity(cube_slice))
-        return max_cubes.merge_cube()
+        result_cube = max_cubes.merge_cube()
+
+        # Put dimensions back if they were there before.
+        result_cube = check_cube_coordinates(cube, result_cube)
+
+        return result_cube

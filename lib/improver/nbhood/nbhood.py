@@ -203,7 +203,7 @@ class BaseNeighbourhoodProcessing(object):
         # the cube is sliced, so that the realization becomes a scalar
         # coordinate.
         try:
-            realiz_coord = cube.coord('realization')
+            realiz_coord = cube.coord('realization', dim_coords=True)
         except iris.exceptions.CoordinateNotFoundError:
             if 'source_realizations' in cube.attributes:
                 num_ens = len(cube.attributes['source_realizations'])
@@ -221,7 +221,7 @@ class BaseNeighbourhoodProcessing(object):
         if np.isnan(cube.data).any():
             raise ValueError("Error: NaN detected in input cube data")
 
-        cubelist = iris.cube.CubeList([])
+        cubelist = []
         for cube_realization in slices_over_realization:
             if self.lead_times is None:
                 radius = self._find_radii(num_ens)
@@ -244,15 +244,18 @@ class BaseNeighbourhoodProcessing(object):
                             required_radii)):
                     cube_slice = self.neighbourhood_method.run(
                         cube_slice, radius, mask_cube=mask_cube)
-                    cube_slice = iris.util.new_axis(cube_slice, "time")
                     cubes.append(cube_slice)
-                cube_new = concatenate_cubes(cubes,
-                                             coords_to_slice_over=["time"])
-            if cube_new.coords("realization", dim_coords=False):
-                cube_new = iris.util.new_axis(cube_new, "realization")
+
+                cube_new = concatenate_cubes(
+                    cubes, coords_to_slice_over=["time"])
             cubelist.append(cube_new)
-        combined_cube = cubelist.concatenate_cube()
-        # Promote dimensional coordinates that have been demoted to scalars.
+        if len(cubelist) > 1:
+            combined_cube = concatenate_cubes(
+                cubelist, coords_to_slice_over=["realization"])
+        else:
+            combined_cube = cubelist[0]
+
+        # Promote dimensional coordinates that used to be present.
         exception_coordinates = (
             find_dimension_coordinate_mismatch(
                 cube, combined_cube, two_way_mismatch=False))

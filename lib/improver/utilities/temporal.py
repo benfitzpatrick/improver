@@ -53,31 +53,35 @@ def find_required_lead_times(cube):
             calculated.
 
     """
+
+    # Try to return forecast period points in hours.
     if cube.coords("forecast_period"):
+        fp_coord = cube.coord("forecast_period").copy()
         try:
-            cube.coord("forecast_period").convert_units("hours")
+            fp_coord.convert_units("hours")
         except ValueError as err:
             msg = "For forecast_period: {}".format(err)
             raise ValueError(msg)
-        required_lead_times = cube.coord("forecast_period").points
-    else:
-        if cube.coords("time") and cube.coords("forecast_reference_time"):
-            try:
-                cube.coord("time").convert_units(
-                    "hours since 1970-01-01 00:00:00")
-                cube.coord("forecast_reference_time").convert_units(
-                    "hours since 1970-01-01 00:00:00")
-            except ValueError as err:
-                msg = "For time/forecast_reference_time: {}".format(err)
-                raise ValueError(msg)
-            required_lead_times = (
-                cube.coord("time").points -
-                cube.coord("forecast_reference_time").points)
-        else:
-            msg = ("The forecast period coordinate is not available "
-                   "within {}."
-                   "The time coordinate and forecast_reference_time "
-                   "coordinate were also not available for calculating "
-                   "the forecast_period.".format(cube))
-            raise CoordinateNotFoundError(msg)
-    return required_lead_times
+        return fp_coord.points
+
+    # Try to derive lead times from time - forecast_reference.
+    if cube.coords("time") and cube.coords("forecast_reference_time"):
+        t_coord = cube.coord("time").copy()
+        fr_coord = cube.coord("forecast_reference_time").copy()
+        try:
+            t_coord.convert_units(
+                "hours since 1970-01-01 00:00:00")
+            fr_coord.convert_units(
+                "hours since 1970-01-01 00:00:00")
+        except ValueError as err:
+            msg = "For time/forecast_reference_time: {}".format(err)
+            raise ValueError(msg)
+        return (t_coord.points - fr_coord.points)
+
+    # No sufficient information to calculate it!
+    msg = ("The forecast period coordinate is not available "
+           "within {}."
+           "The time coordinate and forecast_reference_time "
+           "coordinate were also not available for calculating "
+           "the forecast_period.".format(cube))
+    raise CoordinateNotFoundError(msg)
