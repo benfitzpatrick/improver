@@ -122,8 +122,8 @@ def main():
 
     args = parser.parse_args()
 
-    cube = load_cube(args.input_filepath)
-    mask = load_cube(args.input_mask_filepath)
+    cube = load_cube(args.input_filepath, no_lazy_load=True)
+    mask = load_cube(args.input_mask_filepath, no_lazy_load=True)
     masking_coordinate = None
 
     if any(['topographic_zone' in coord.name()

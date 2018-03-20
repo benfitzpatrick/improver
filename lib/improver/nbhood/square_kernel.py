@@ -114,11 +114,13 @@ class SquareNeighbourhood(object):
                 along the y and x direction has been applied.
         """
         summed_cube = cube.copy()
-        data = cube.data.astype(np.longdouble)
+        data = summed_cube.data
+        if cube.data.dtype == np.float32:
+            data = data.astype(np.double)
         data_summed_along_y = np.cumsum(data, axis=0)
         data_summed_along_x = (
             np.cumsum(data_summed_along_y, axis=1))
-        summed_cube.data = data_summed_along_x
+        summed_cube.data = data_summed_along_x.astype(cube.data.dtype)
         return summed_cube
 
     @staticmethod
@@ -167,9 +169,12 @@ class SquareNeighbourhood(object):
         elif method == 'remove':
             end_width = -2*width if width != 0 else None
             new_points = np.float32(orig_points[2*width:end_width])
+        new_points = new_points.astype(orig_points.dtype)
 
         new_points_bounds = np.array([new_points - 0.5*increment,
                                       new_points + 0.5*increment]).T
+        if coord.bounds is None:
+            return coord.copy(points=new_points)
         return coord.copy(points=new_points, bounds=new_points_bounds)
 
     @staticmethod
@@ -467,11 +472,11 @@ class SquareNeighbourhood(object):
                 n_rows, n_columns)
 
             with np.errstate(invalid='ignore', divide='ignore'):
-                cube.data = (neighbourhood_total.astype(float) /
-                             neighbourhood_area.astype(float))
+                cube.data = (neighbourhood_total.astype(np.float32) /
+                             neighbourhood_area.astype(np.float32))
                 cube.data[~np.isfinite(cube.data)] = np.nan
         elif self.sum_or_fraction == "sum":
-            cube.data = neighbourhood_total.astype(float)
+            cube.data = neighbourhood_total.astype(np.float32)
 
         return cube
 
@@ -658,15 +663,23 @@ class SquareNeighbourhood(object):
             (cube_slice, mask, nan_array) = (
                 self.set_up_cubes_to_be_neighbourhooded(cube_slice,
                                                         mask_cube))
-            neighbourhood_averaged_cube = (
-                self._pad_and_calculate_neighbourhood(
-                    cube_slice, mask,
-                    grid_cells_x, grid_cells_y))
-            neighbourhood_averaged_cube = (
-                self._remove_padding_and_mask(
-                    neighbourhood_averaged_cube,
-                    cube_slice, mask,
-                    grid_cells_x, grid_cells_y))
+            if np.any(cube_slice.data != cube_slice.data.item(0)):
+                # Not all elements equal, neighbourhood process.
+                neighbourhood_averaged_cube = (
+                    self._pad_and_calculate_neighbourhood(
+                        cube_slice, mask,
+                        grid_cells_x, grid_cells_y))
+                neighbourhood_averaged_cube = (
+                    self._remove_padding_and_mask(
+                        neighbourhood_averaged_cube,
+                        cube_slice, mask,
+                        grid_cells_x, grid_cells_y))
+            else:
+                # All elements equal, no point neighbourhood processing.
+                neighbourhood_averaged_cube = cube_slice.copy()
+                neighbourhood_averaged_cube.data = (
+                    neighbourhood_averaged_cube.data.astype(np.float32))
+
             neighbourhood_averaged_cube.data[nan_array.astype(bool)] = np.nan
             result_slices.append(neighbourhood_averaged_cube)
 
