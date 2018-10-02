@@ -114,4 +114,10 @@ def save_netcdf(cubelist, filename):
 
     cubelist = append_metadata_cube(cubelist, global_keys)
 
-    iris.fileformats.netcdf.save(cubelist, filename, local_keys=local_keys)
+    if any([_.name().startswith("probability_of") for _ in cubelist]):
+        iris.fileformats.netcdf.save(cubelist, filename, local_keys=local_keys,
+                                     least_significant_digit=2, complevel=1,
+                                     shuffle=True, zlib=True,
+                                     chunksizes=(1, 128, 128))
+    else:
+        iris.fileformats.netcdf.save(cubelist, filename, local_keys=local_keys)
