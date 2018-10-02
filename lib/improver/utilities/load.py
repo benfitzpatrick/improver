@@ -95,7 +95,7 @@ def load_cube(filepath, constraints=None, no_lazy_load=False):
     y_name = cube.coord(axis="y").name()
     x_name = cube.coord(axis="x").name()
     cube = enforce_coordinate_ordering(cube, [y_name, x_name], anchor="end")
-    if no_lazy_load:
+    if True or no_lazy_load:
         # Force the cube's data into memory by touching the .data attribute.
         cube.data
     return cube
