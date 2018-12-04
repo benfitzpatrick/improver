@@ -134,5 +134,10 @@ def save_netcdf(cubelist, filename):
                                      least_significant_digit=2, complevel=1,
                                      shuffle=True, zlib=True,
                                      chunksizes=(1, 128, 128))
+    elif any([_.name().startswith("percentile") for _ in cubelist]):
+        iris.fileformats.netcdf.save(cubelist, filename, local_keys=local_keys,
+                                     least_significant_digit=2, complevel=1,
+                                     shuffle=True, zlib=True,
+                                     chunksizes=(1, 128, 128))
     else:
         iris.fileformats.netcdf.save(cubelist, filename, local_keys=local_keys)
