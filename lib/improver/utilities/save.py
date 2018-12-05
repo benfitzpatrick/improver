@@ -129,15 +129,21 @@ def save_netcdf(cubelist, filename):
 
     cubelist = append_metadata_cube(cubelist, global_keys)
 
+    if cube.ndim == 2:
+        chunksizes = (128, 128)
+    if cube.ndim == 3:
+        chunksizes = (1, 128, 128)
+    if cube.ndim == 4:
+        chunksizes = (1, 1, 128, 128)
     if any([_.name().startswith("probability_of") for _ in cubelist]):
         iris.fileformats.netcdf.save(cubelist, filename, local_keys=local_keys,
                                      least_significant_digit=2, complevel=1,
                                      shuffle=True, zlib=True,
-                                     chunksizes=(1, 128, 128))
+                                     chunksizes=chunksizes)
     elif any([_.name().startswith("percentile") for _ in cubelist]):
         iris.fileformats.netcdf.save(cubelist, filename, local_keys=local_keys,
                                      least_significant_digit=2, complevel=1,
                                      shuffle=True, zlib=True,
-                                     chunksizes=(1, 128, 128))
+                                     chunksizes=chunksizes)
     else:
         iris.fileformats.netcdf.save(cubelist, filename, local_keys=local_keys)
