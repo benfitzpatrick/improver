@@ -90,9 +90,10 @@ def main():
         msg = 'Neighbourhood radius specified is less than zero.'
         raise ValueError(msg)
 
-    temperature_cube = load_cube(args.temperature_filepath)
-    orography_cube = load_cube(args.orography_filepath)
-    land_sea_mask_cube = load_cube(args.land_sea_mask_filepath)
+    temperature_cube = load_cube(args.temperature_filepath, no_lazy_load=True)
+    orography_cube = load_cube(args.orography_filepath, no_lazy_load=True)
+    land_sea_mask_cube = load_cube(args.land_sea_mask_filepath,
+                                   no_lazy_load=True)
 
     result = LapseRate(
         max_height_diff=args.max_height_diff,

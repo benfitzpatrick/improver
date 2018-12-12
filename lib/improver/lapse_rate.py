@@ -281,12 +281,11 @@ class LapseRate(object):
         y_data = temperature[~np.isnan(temperature)]
         x_data = orography[~np.isnan(temperature)]
 
-        # Return DALR if standard deviation of both datasets = 0 (where all
-        # points are the same value).
-        if np.isclose(np.std(x_data), 0.0) and np.isclose(np.std(y_data), 0.0):
+        # Return DALR if all orography points are the same value.
+        if np.all(x_data == x_data[0]):
             return DALR
 
-        matrix = np.stack([x_data, np.ones(len(x_data))], axis=0).T
+        matrix = np.vstack([x_data, np.ones(len(x_data))]).T
         gradient, _ = lstsq(matrix, y_data)[0]
 
         return gradient
