@@ -71,24 +71,136 @@ class ArgParser(ArgumentParser):
     # Ideally, all CLIs should select something from this dictionary:
     # NB: --help included by default with ArgumentParser
     CENTRALIZED_ARGUMENTS = {
+        'alpha_x': (
+            '--alpha_x',
+            {'metavar': 'ALPHA_X_FACTOR_OR_FILEPATH',
+             'default': None,
+             'help': 'A single alpha factor (0 < alpha_x < 1) to be applied '
+                     'to every grid square in the x direction when applying '
+                     'the recursive filter, or a path to a NetCDF file '
+                     'specifying the equivalent for each grid square.'}
+        ),
+        'alpha_y': (
+            '--alpha_y',
+            {'metavar': 'ALPHA_Y_FACTOR_OR_FILEPATH',
+             'default': None,
+             'help': 'A single alpha factor (0 < alpha_y < 1) to be applied '
+                     'to every grid square in the y direction when applying '
+                     'the recursive filter, or a path to a NetCDF file '
+                     'specifying the equivalent for each grid square.'}
+        ),
+        'apply_recursive_filter': (
+            '--apply-recursive-filter',
+            {'action': 'store_true',
+             'default': False,
+             'help': 'Option to apply the recursive filter to a square '
+                     'neighbourhooded output dataset converting it into '
+                     'a Gaussian-like kernel or smoothing over short '
+                     'distances. The filter uses an alpha parameter '
+                     '(0 < alpha < 1) to control what proportion of the '
+                     'probability is passed onto the next grid-square in the '
+                     'x and y directions. The alpha parameter can be set on '
+                     'a grid-square by grid-square basis for the x and y '
+                     'directions separately (using two arrays of alpha '
+                     'parameters of the same dimensionality as the domain). '
+                     'Alternatively a single alpha value can be set for each '
+                     'of the x and y directions. These methods can be mixed, '
+                     'e.g. an array for the x direction and a float for the '
+                     'y direction and vice versa. The recursive filter '
+                     'cannot be applied to a circular kernel.'}
+        ),
+        'degrees_as_complex': (
+            '--degrees_as_complex',
+            {'action': 'store_true',
+             'default': False,
+             'help': 'Set this flag to process angles, e.g. wind directions, '
+                     'as complex numbers. Not compatible with circular '
+                     'or circular weighted kernels or recursive filter.'}
+        ),
         'input_file': (
-            ['input_filepath'],
+            'input_filepath',
             {'metavar': 'INPUT_FILE',
              'help': 'A path to an input NetCDF file to be processed'}),
+        'input_mask_filepath': (
+            '--input_mask_filepath',
+            {'metavar': 'INPUT_MASK_FILE',
+             'help': 'A path to an input mask NetCDF file to be used to mask '
+                     'the input file. This is currently only supported for '
+                     'square neighbourhoods. The data should contain 1 for '
+                     'usable points and 0 for discarded points, e.g. a '
+                     'land-mask.'}
+        ),
+        'iterations': (
+            '--iterations',
+            {'metavar': 'ITERATIONS',
+             'default': 1,
+             'type': int,
+             'help': 'Number of times to apply the filter, default=1 '
+                     '(typically < 5).'}
+        ),
+        'kernel': (
+            '--kernel',
+            {'metavar': 'NEIGHBOURHOOD_KERNEL',
+             'choices': ["circular", "circular_weighted", "square"],
+             'default': "square",
+             'help': 'The shape of the neighbourhood to apply in '
+                     'neighbourhood processing. Options: "circular", '
+                     '"circular_weighted", "square" (default). The '
+                     'circular_weighted kernel differs from the circular by '
+                     'having a weighting that decreases with radial distance. '
+                     'Only the square kernel supports the full range of '
+                     'options like masking, complex number processing, and '
+                     'sum or fraction.'}
+        ),
+        'radius': (
+            '--radius',
+            {'metavar': 'RADIUS_OR_RADII',
+             'type': 'parse_float_list_type',
+             'help': 'The radius (in m) for neighbourhood processing.'
+                     'Multiple radii can be given, comma separated, to '
+                     'correspond with lead times in --radii-lead-times.'}
+        ),
+        'radii_lead_times': (
+            '--radii_lead_times',
+            {'metavar': 'LEAD_TIMES',
+             'type': "parse_lead_time_list_type",
+             'help': 'Comma separated list of lead times at which each radius '
+                     'given in --radius is valid. Lead times should be given '
+                     'in PTxH where x is an integer number of hours - for '
+                     'example, PT12H or PT144H. A --radii-lead-times value '
+                     'of "PT0H,PT12H,PT36H" with --radius value of '
+                     '"8000,32000,44000" would mean that a file with a '
+                     'forecast period lead time of 0 hours would use a '
+                     'radius of 8km, a file with a forecast period lead time '
+                     'of 12 hours would use a radius of 32km, and a lead '
+                     'time of 36 hours would use a radius of 44km, with all '
+                     'other lead time values within and outside those bounds '
+                     'using a linearly interpolated radius.'}
+        ),
+        'sum_or_fraction': (
+            '--sum_or_fraction',
+            {'default': "fraction",
+             'choices': ["sum", "fraction"],
+             'help': 'The neighbourhood output can either be in the form of '
+                     'a sum of the neighbourhood, or a fraction calculated '
+                     'by dividing the sum of the neighbourhood by the '
+                     'neighbourhood area. "fraction" is the default option.'}
+        ),
         'output_file': (
-            ['output_filepath'],
+            'output_filepath',
             {'metavar': 'OUTPUT_FILE',
-             'help': 'The output path for the processed NetCDF'}),
+             'help': 'The output path for the processed NetCDF'}
+        ),
     }
 
     # *All* CLIs will use the options here (no option to disable them):
     COMPULSORY_ARGUMENTS = {
         'profile': (
-            ['--profile'],
+            '--profile',
             {'action': 'store_true',
              'help': 'Switch on profiling information.'}),
         'profile_file': (
-            ['--profile_file'],
+            '--profile_file',
             {'metavar': 'PROFILE_FILE',
              'help': 'Dump profiling info to a file. Implies --profile.'})
     }
@@ -209,6 +321,29 @@ class ArgParser(ArgumentParser):
         msg = 'Method: {} does not accept arguments: {}'
         self.error(msg.format(method, args))
 
+    @staticmethod
+    def parse_float_list_type(value):
+        """Parse a comma separated list of floats."""
+        try:
+            return [float(_) for _ in value.split(",")]
+        except ValueError:
+            raise argparse.ArgumentTypeError
+
+    @staticmethod
+    def parse_lead_time_list_type(value):
+        """Parse a comma separated list of PTxH, x integer number of hours.
+
+        For example, PT1H or PT1H,PT2H,PT12H.
+
+        """
+        import re
+        lead_times = []
+        for item in value.split(","):
+            match = re.match(r"PT(\d+)H$", value)
+            if match is None:
+                raise argparse.ArgumentTypeError
+            lead_times.append(float(match.groups()[0]))
+        return lead_times
 
 def safe_eval(command, module, allowed):
     """

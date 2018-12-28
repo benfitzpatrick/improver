@@ -176,12 +176,12 @@ def main():
         if masking_coordinate is not None:
             result_land = ApplyNeighbourhoodProcessingWithAMask(
                 masking_coordinate, radius_or_radii, lead_times=lead_times,
-                sum_or_fraction=args.sum_or_fraction, re_mask=False).process(
+                sum_or_fraction=args.sum_or_fraction).process(
                     cube, mask)
         else:
             result_land = NeighbourhoodProcessing(
                 'square', radius_or_radii, lead_times=lead_times,
-                sum_or_fraction=args.sum_or_fraction, re_mask=True).process(
+                sum_or_fraction=args.sum_or_fraction).process(
                     cube, land_only)
 
         if masking_coordinate is not None:

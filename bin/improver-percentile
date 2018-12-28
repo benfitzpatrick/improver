@@ -41,6 +41,7 @@ from improver.ensemble_copula_coupling.ensemble_copula_coupling import \
     GeneratePercentilesFromProbabilities
 from improver.ensemble_copula_coupling.ensemble_copula_coupling_utilities \
     import choose_set_of_percentiles
+from improver.nbhood.nbhood import GeneratePercentilesFromANeighbourhood
 from improver.utilities.load import load_cube
 from improver.utilities.save import save_netcdf
 
@@ -93,8 +94,21 @@ def main():
     if args.no_of_percentiles is not None:
         percentiles = choose_set_of_percentiles(args.no_of_percentiles,
                                                 sampling="quantile")
+
+    if args.nbhood_radius:
+        if ',' in args.nbhood_radius:
+            radius = [float(_) for _ in radius.split(",")]
+        else:
+            radius = float(radius)
+        result = (
+            GeneratePercentilesFromANeighbourhood(
+                'circular', radius,
+                lead_times=args.nbhood_lead_times,
+                percentiles=percentiles
+                ).process(cube))
+
     # TODO: Correct when formal cf-standards exists
-    if 'probability_of_' in cube.name():
+    elif 'probability_of_' in cube.name():
         if args.coordinates:
             warnings.warn("Converting probabilities to percentiles. The "
                           "provided COORDINATES_TO_COLLAPSE variable will "

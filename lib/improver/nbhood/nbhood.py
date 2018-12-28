@@ -263,8 +263,7 @@ class NeighbourhoodProcessing(BaseNeighbourhoodProcessing):
 
     def __init__(
             self, neighbourhood_method, radii, lead_times=None,
-            weighted_mode=True, sum_or_fraction="fraction",
-            re_mask=False):
+            sum_or_fraction="fraction", re_mask=False):
         """
         Create a neighbourhood processing subclass that applies a smoothing
         to points in a cube.
@@ -272,7 +271,7 @@ class NeighbourhoodProcessing(BaseNeighbourhoodProcessing):
         Args:
             neighbourhood_method (str):
                 Name of the neighbourhood method to use. Options: 'circular',
-                'square'.
+                'circular_weighted', and 'square'.
             radii (float or List if defining lead times):
                 The radii in metres of the neighbourhood to apply.
                 Rounded up to convert into integer number of grid
@@ -284,10 +283,6 @@ class NeighbourhoodProcessing(BaseNeighbourhoodProcessing):
                 List of lead times or forecast periods, at which the radii
                 within 'radii' are defined. The lead times are expected
                 in hours.
-            weighted_mode (boolean):
-                If True, use a circle for neighbourhood kernel with
-                weighting decreasing with radius.
-                If False, use a circle with constant weighting.
             sum_or_fraction (string):
                 Identifier for whether sum or fraction should be returned from
                 neighbourhooding. The sum represents the sum of the
@@ -306,8 +301,10 @@ class NeighbourhoodProcessing(BaseNeighbourhoodProcessing):
         super(NeighbourhoodProcessing, self).__init__(
             neighbourhood_method, radii, lead_times=lead_times)
 
+        weighted_mode = (neighbourhood_method == "circular_weighted")
         methods = {
             "circular": CircularNeighbourhood,
+            "circular_weighted": CircularNeighbourhood,
             "square": SquareNeighbourhood}
         try:
             method = methods[neighbourhood_method]
