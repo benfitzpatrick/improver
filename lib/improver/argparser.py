@@ -74,40 +74,34 @@ class ArgParser(ArgumentParser):
         'alpha_x': (
             '--alpha_x',
             {'metavar': 'ALPHA_X_FACTOR_OR_FILEPATH',
-             'default': None,
+             'default': 0.8,
              'help': 'A single alpha factor (0 < alpha_x < 1) to be applied '
                      'to every grid square in the x direction when applying '
-                     'the recursive filter, or a path to a NetCDF file '
-                     'specifying the equivalent for each grid square.'}
+                     'the recursive filter (on by default for square '
+                     'kernels), or a path to a NetCDF file specifying the '
+                     'equivalent for each grid square. The alpha parameter '
+                     '(0 < alpha < 1) controls what proportion of the '
+                     'probability is passed onto the next grid-square in the '
+                     'x and y directions.'}
         ),
         'alpha_y': (
             '--alpha_y',
             {'metavar': 'ALPHA_Y_FACTOR_OR_FILEPATH',
-             'default': None,
+             'default': 0.8,
              'help': 'A single alpha factor (0 < alpha_y < 1) to be applied '
                      'to every grid square in the y direction when applying '
-                     'the recursive filter, or a path to a NetCDF file '
-                     'specifying the equivalent for each grid square.'}
-        ),
-        'apply_recursive_filter': (
-            '--apply-recursive-filter',
-            {'action': 'store_true',
-             'default': False,
-             'help': 'Option to apply the recursive filter to a square '
-                     'neighbourhooded output dataset converting it into '
-                     'a Gaussian-like kernel or smoothing over short '
-                     'distances. The filter uses an alpha parameter '
-                     '(0 < alpha < 1) to control what proportion of the '
+                     'the recursive filter (on by default for square '
+                     'kernels), or a path to a NetCDF file specifying the '
+                     'equivalent for each grid square. The alpha parameter '
+                     '(0 < alpha < 1) controls what proportion of the '
                      'probability is passed onto the next grid-square in the '
-                     'x and y directions. The alpha parameter can be set on '
-                     'a grid-square by grid-square basis for the x and y '
-                     'directions separately (using two arrays of alpha '
-                     'parameters of the same dimensionality as the domain). '
-                     'Alternatively a single alpha value can be set for each '
-                     'of the x and y directions. These methods can be mixed, '
-                     'e.g. an array for the x direction and a float for the '
-                     'y direction and vice versa. The recursive filter '
-                     'cannot be applied to a circular kernel.'}
+                     'x and y directions.'}
+        ),
+        'coord_for_masking': (
+            '--coord_for_masking',
+            {'metavar': 'COORD_FOR_MASKING',
+             'help': 'Coordinate to iterate over when applying a mask to the '
+                     'neighbourhood processing.'}
         ),
         'degrees_as_complex': (
             '--degrees_as_complex',
@@ -117,10 +111,19 @@ class ArgParser(ArgumentParser):
                      'as complex numbers. Not compatible with circular '
                      'or circular weighted kernels or recursive filter.'}
         ),
-        'input_file': (
+        'input_filepath': (
             'input_filepath',
             {'metavar': 'INPUT_FILE',
              'help': 'A path to an input NetCDF file to be processed'}),
+        'input_mask_collapse_weights_filepath': (
+            '--input_mask_collapse_weights_filepath',
+            {'metavar': 'INPUT_MASK_WEIGHTS_FILE',
+             'default': None,
+             'help': 'A path to an weights NetCDF file containing the weights '
+                     'which are used for collapsing the dimension gained '
+                     'through masking. If not given, the mask dimension will '
+                     'not be collapsed.'}
+        ),
         'input_mask_filepath': (
             '--input_mask_filepath',
             {'metavar': 'INPUT_MASK_FILE',
@@ -129,6 +132,12 @@ class ArgParser(ArgumentParser):
                      'square neighbourhoods. The data should contain 1 for '
                      'usable points and 0 for discarded points, e.g. a '
                      'land-mask.'}
+        ),
+        'input_landsea_mask_filepath': (
+            '--input_landsea_mask_filepath',
+            {'metavar': 'LANDSEA_FILE',
+             'help': 'A path to an input logical mask NetCDF file to be used '
+                     'to distinguish land (True) from sea (False).'}
         ),
         'iterations': (
             '--iterations',
@@ -141,8 +150,8 @@ class ArgParser(ArgumentParser):
         'kernel': (
             '--kernel',
             {'metavar': 'NEIGHBOURHOOD_KERNEL',
-             'choices': ["circular", "circular_weighted", "square"],
-             'default': "square",
+             'choices': ['circular', 'circular_weighted', 'square'],
+             'default': 'square',
              'help': 'The shape of the neighbourhood to apply in '
                      'neighbourhood processing. Options: "circular", '
                      '"circular_weighted", "square" (default). The '
@@ -152,10 +161,37 @@ class ArgParser(ArgumentParser):
                      'options like masking, complex number processing, and '
                      'sum or fraction.'}
         ),
+        'no_collapse_mask': (
+            '--no-collapse-mask',
+            {'action': 'store_true',
+             'help': 'Do not collapse the dimension from the mask '
+                     'coordinate.'}
+        ),
+        'no_recursive_filter': (
+            '--no-recursive-filter',
+            {'action': 'store_true',
+             'default': False,
+             'help': 'Do not apply the recursive filter, when using square '
+                     'neighbourhood kernel.'}
+        ),
+        'output_filepath': (
+            'output_filepath',
+            {'metavar': 'OUTPUT_FILE',
+             'help': 'The output path for the processed NetCDF'}
+        ),
         'radius': (
             '--radius',
             {'metavar': 'RADIUS_OR_RADII',
-             'type': 'parse_float_list_type',
+             'type': 'self.parse_float_list_type',
+             'help': 'The radius (in m) for neighbourhood processing.'
+                     'Multiple radii can be given, comma separated, to '
+                     'correspond with lead times in --radii-lead-times.'}
+        ),
+        'radius_required': (
+            '--radius',
+            {'metavar': 'RADIUS_OR_RADII',
+             'type': 'self.parse_float_list_type',
+             'required': True,
              'help': 'The radius (in m) for neighbourhood processing.'
                      'Multiple radii can be given, comma separated, to '
                      'correspond with lead times in --radii-lead-times.'}
@@ -163,7 +199,7 @@ class ArgParser(ArgumentParser):
         'radii_lead_times': (
             '--radii_lead_times',
             {'metavar': 'LEAD_TIMES',
-             'type': "parse_lead_time_list_type",
+             'type': 'self.parse_lead_time_list_type',
              'help': 'Comma separated list of lead times at which each radius '
                      'given in --radius is valid. Lead times should be given '
                      'in PTxH where x is an integer number of hours - for '
@@ -179,17 +215,12 @@ class ArgParser(ArgumentParser):
         ),
         'sum_or_fraction': (
             '--sum_or_fraction',
-            {'default': "fraction",
-             'choices': ["sum", "fraction"],
+            {'default': 'fraction',
+             'choices': ['sum', 'fraction'],
              'help': 'The neighbourhood output can either be in the form of '
                      'a sum of the neighbourhood, or a fraction calculated '
                      'by dividing the sum of the neighbourhood by the '
                      'neighbourhood area. "fraction" is the default option.'}
-        ),
-        'output_file': (
-            'output_filepath',
-            {'metavar': 'OUTPUT_FILE',
-             'help': 'The output path for the processed NetCDF'}
         ),
     }
 
@@ -265,16 +296,16 @@ class ArgParser(ArgumentParser):
 
         The input argspec_list is a list of argument specifications, where each
         element (argument specification) is a tuple/list of length 2.
-        The first element of an argument specification is a list of strings
-        which the name/flags used to add the argument.
+        The first element of an argument specification is a string or a list
+        of strings which are the name/flags used to add the argument.
         The second element of the argument spec shall be a dictionary
         containing the keyword arguments which are passed into the
         add_argument() method.
 
         Args:
-            argspec_list (list):
-                A list containing the specifications required to add the
-                arguments (see above)
+            argspec_list (list or string):
+                A list or string containing the specifications required to add
+                the arguments (see above)
 
         Raises:
             AttributeError:
@@ -288,6 +319,13 @@ class ArgParser(ArgumentParser):
                     "Each argument specification should be a 2-tuple, of a "
                     "list (of strings) and a dictionary.")
             argflags, argkwargs = argspec
+            if isinstance(argflags, str):
+                argflags = [argflags]
+            argtype = argkwargs.get('type')
+            if isinstance(argtype, str) and argtype.startswith('self.'):
+                argtype = argtype.replace('self.', '')
+                argkwargs['type'] = getattr(self, argtype,
+                                            argkwargs['type'])
             self.add_argument(*argflags, **argkwargs)
 
     def parse_args(self, args=None, namespace=None):

@@ -46,30 +46,61 @@ def main():
     """Load in arguments and get going."""
     parser = ArgParser(
         central_arguments=[
-            "radius", "radii_lead_times", "halo_radius", "kernel",
-            "degrees_as_complex", "sum_or_fraction", "input_mask_file",
-            "input_file", "output_file", "recursive_filter", "alpha_x",
-            "alpha_y", "iterations"],
-        description='Apply variants of neighbourhood processing (spatial '
-                    'smoothing) to a file.'
-    )
+            "radius_required", "radii_lead_times", "halo_radius", "kernel",
+            "degrees_as_complex", "sum_or_fraction", "input_mask_filepath",
+            "coord_for_masking", "input_mask_collapse_weights_filepath",
+            "input_landsea_mask_filepath", "input_filepath",
+            "output_filepath", "no_recursive_filter",
+            "alpha_x", "alpha_y", "iterations"],
+        description=('Apply variants of neighbourhood processing (spatial '
+                     'smoothing) to a file. Apart from different smoothing '
+                     'kernels, such as circular vs square+squareness-filter '
+                     '(recursive filter), there are three main masking '
+                     'behaviours that can be applied, and a fourth no mask '
+                     'case. The first is when the mask is simply over x/y, '
+                     'in which case only the unmasked points will be '
+                     'neighbourhood processed. The second is when the file '
+                     'contains multiple masks along a particular given '
+                     'mask coordinate. In this case, the user specifies the '
+                     'name of the extra coordinate and this coordinate is '
+                     'iterated over so each mask is applied in turn to '
+                     'separate slices over the input data. These sliced '
+                     'masked datasets are then concatenated, and by default '
+                     'a weighted mean using an auxiliary weights file '
+                     'is done to collapse over the mask coordinate to the '
+                     'original dimensions. In the case where this masking '
+                     'coordinate is topographic zone, the weights and values '
+                     'can be generated with the improver generate-topography '
+                     'CLIs. The third masking method is further to apply a '
+                     'land and sea mask on top of the method used in the '
+                     'second, multiple masks method. This allows land and sea '
+                     'to be treated totally separately.')
+     )
  
     args = parser.parse_args()
 
     if args.kernel in ["circular", "circular_weighted"]:
         if args.input_mask_filepath is not None:
             parser.wrong_args_error(
-                'neighbourhood_shape=circular', 'input_mask_filepath')
+                'kernel!=square', 'input_mask_filepath')
+
+        if args.input_landsea_mask_filepath is not None:
+            parser.wrong_args_error(
+                'kernel!=square', 'input_landsea_mask_filepath')
+
+        if args.coord_for_masking is not None:
+            parser.wrong_args_error(
+                'kernel!=square', 'coord_for_masking')
 
         if args.degrees_as_complex:
             parser.error('Cannot process complex numbers with circular '
                          'neighbourhoods')
 
-        if args.apply_recursive_filter:
+        if args.no_recursive_filter:
             parser.error('Recursive filter option is not applicable to '
                          'circular neighbourhoods.')
 
-    if args.degrees_as_complex and args.apply_recursive_filter:
+    if args.degrees_as_complex and not args.no_recursive_filter:
         parser.error('Cannot process complex numbers with recursive '
                      'filter')
 
@@ -84,47 +115,99 @@ def main():
     elif not args.radii_lead_times:
         parser.error('Multiple radii given but no lead times specified')
 
+    if args.kernel != "square":
+        result = (
+            NeighbourhoodProcessing(
+                args.kernel, radius,
+                lead_times=args.lead_times).process(cube))
+        save_netcdf(result, args.output_filepath)
+        return
+
     if args.input_mask_filepath:
         mask_cube = load_cube(args.input_mask_filepath)
     else:
         mask_cube = None
 
-    result = (
-        NeighbourhoodProcessing(
-            args.kernel, radius,
-            lead_times=args.lead_times,
-            sum_or_fraction=args.sum_or_fraction
-            ).process(cube, mask_cube=mask_cube))
-   
-    # If the '--apply-recursive-filter' option has been specified in the
-    # input command, pass the neighbourhooded 'result' cube obtained above
-    # through the recursive-filter plugin before saving the output.
-    # The recursive filter is only applicable to square neighbourhoods.
+    landmask = None
+    if args.input_landsea_mask_filepath is not None:
+        landmask = load_cube(args.input_landsea_mask_filepath)
+        sea_only = landsea.copy(
+            data=np.logical_not(landmask.data).astype(int))
+        land_only = landmask.copy(data=landmask.data.astype(int))
+        if mask_cube.attributes.get(
+                'topographic_zones_include_seapoints') == 'True':
+            raise ValueError('The topographic zones mask cube must have been '
+                             'masked to exclude sea points, but '
+                             'topographic_zones_include_seapoints = True')
 
-    if args.apply_recursive_filter:
+    if args.coord_for_masking is None:
+        # Simple mask - use land mask if in land-sea mode.
+        if landmask is None:
+            mask = mask_cube
+        else:
+            mask = land_only
+        result = NeighbourhoodProcessing(
+            'square', radius_or_radii, lead_times=lead_times,
+            sum_or_fraction=args.sum_or_fraction).process(
+                cube, mask)
+    else:
+        # Multiple masks.
+        result = ApplyNeighbourhoodProcessingWithAMask(
+            args.coord_for_masking, radius, lead_times=args.lead_times,
+            sum_or_fraction=args.sum_or_fraction).process(cube, mask_cube)
+
+        # Collapse with the masking dimension.
+        if args.input_mask_collapse_weights_filepath is not None:
+            weights = load_cube(args.input_mask_collapse_weights_filepath)
+            if landmask is not None and weights.attributes.get(
+                'topographic_zones_include_seapoints') == 'True':
+                raise ValueError('The weights cube must be masked to '
+                                 'exclude sea points, but '
+                                 'topographic_zones_include_seapoints '
+                                 '= True')
+            result = CollapseMaskedNeighbourhoodCoordinate(
+                args.coord_for_masking, weights=weights).process(result)
+
+    if not args.no_recursive_filter:
+        # Apply the recursive filter.
 
         alpha_x = None
         alphas_x_cube = None
         alpha_y = None
         alphas_y_cube = None
 
-        if args.alpha_x is not None:
-            try:
-                alpha_x = float(args.alpha_x)
-            except ValueError:
-                alphas_x_cube = load_cube(args.alpha_x)
+        try:
+            alpha_x = float(args.alpha_x)
+        except ValueError:
+            alphas_x_cube = load_cube(args.alpha_x)
 
-        if args.alpha_y is not None:
-            try:
-                alpha_y = float(args.alpha_y)
-            except ValueError:
-                alphas_y_cube = load_cube(args.alpha_y)
+        try:
+            alpha_y = float(args.alpha_y)
+        except ValueError:
+            alphas_y_cube = load_cube(args.alpha_y)
 
         result = RecursiveFilter(
             alpha_x=alpha_x, alpha_y=alpha_y,
             iterations=args.iterations).process(
                 result, alphas_x=alphas_x_cube, alphas_y=alphas_y_cube,
                 mask_cube=mask_cube)
+
+    if landmask is not None:
+        # Process the sea data separately.
+        if sea_only.data.max() > 0.0:
+            result_sea = NeighbourhoodProcessing(
+                'square', radius_or_radii, lead_times=lead_times,
+                sum_or_fraction=args.sum_or_fraction,
+                re_mask=True).process(cube, sea_only)
+
+        if land_only.data.max() == 0.0:
+            result = result_sea
+        else:
+            # We have unmasked data for both land and sea.
+            # Recombine cubes to be a single output.
+            combined_data = (result.data.filled(0) +
+                             result_sea.data.filled(0))
+            result = result.copy(data=combined_data)
 
     if args.degrees_as_complex:
         # convert neighbourhooded cube back to degrees
