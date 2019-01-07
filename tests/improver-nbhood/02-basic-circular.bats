@@ -36,7 +36,7 @@
   KGO="nbhood/basic/kgo_circular.nc"
 
   # Run circular neighbourhood processing and check it passes.
-  run improver nbhood 'probabilities' 'circular' --radius=20000 --weighted_mode\
+  run improver nbhood --kernel=circular_weighted --radius=20000 \
       "$IMPROVER_ACC_TEST_DIR/nbhood/basic/input_circular.nc" "$TEST_DIR/output_circular.nc"
   [[ "$status" -eq 0 ]]
 

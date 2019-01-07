@@ -31,12 +31,12 @@
 
 . $IMPROVER_DIR/tests/lib/utils
 
-@test "nbhood 'square' --radius=20000 input output" {
+@test "nbhood 'square' --no-recursive-filter --radius=20000 input output" {
   improver_check_skip_acceptance
   KGO="nbhood/mask/kgo_external_masked.nc"
 
   # Run square neighbourhood processing with masked data and check it passes.
-  run improver nbhood 'probabilities' 'square' \
+  run improver nbhood --no-recursive-filter \
       "$IMPROVER_ACC_TEST_DIR/nbhood/mask/input.nc" \
       "$TEST_DIR/output.nc" --radius=20000 \
       --input_mask_filepath "$IMPROVER_ACC_TEST_DIR/nbhood/mask/mask.nc"

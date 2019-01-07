@@ -31,12 +31,12 @@
 
 . $IMPROVER_DIR/tests/lib/utils
 
-@test "nbhood 'square' --radius=20000 input output" {
+@test "nbhood --radius=20000 --degrees_as_complex input output" {
   improver_check_skip_acceptance
   KGO="nbhood/wind_direction/kgo.nc"
 
   # Run square neighbourhood processing and check it passes.
-  run improver nbhood 'probabilities' 'square' --radius=20000 \
+  run improver nbhood --radius=20000 \
       "$IMPROVER_ACC_TEST_DIR/nbhood/wind_direction/input.nc" \
       "$TEST_DIR/output.nc" --degrees_as_complex
   [[ "$status" -eq 0 ]]

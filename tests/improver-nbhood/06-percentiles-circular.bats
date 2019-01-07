@@ -31,12 +31,12 @@
 
 . $IMPROVER_DIR/tests/lib/utils
 
-@test "nbhood 'circular' --radius=20000 input output" {
+@test "percentile --radius=20000 input output" {
   improver_check_skip_acceptance
   KGO="nbhood/percentile/kgo_circular_percentile.nc"
 
   # Run circular neighbourhood processing and check it passes.
-  run improver nbhood 'percentiles' 'circular'\
+  run improver percentile \
       "$IMPROVER_ACC_TEST_DIR/nbhood/percentile/input_circular_percentile.nc" "$TEST_DIR/output_circular_percentile.nc"\
       --radius=20000 --percentiles 25 50 75
   [[ "$status" -eq 0 ]]

@@ -119,7 +119,7 @@ def main():
         result = (
             NeighbourhoodProcessing(
                 args.kernel, radius,
-                lead_times=args.lead_times).process(cube))
+                lead_times=args.radii_lead_times).process(cube))
         save_netcdf(result, args.output_filepath)
         return
 
@@ -147,13 +147,13 @@ def main():
         else:
             mask = land_only
         result = NeighbourhoodProcessing(
-            'square', radius_or_radii, lead_times=lead_times,
+            'square', radius_or_radii, lead_times=args.radii_lead_times,
             sum_or_fraction=args.sum_or_fraction).process(
                 cube, mask)
     else:
         # Multiple masks.
         result = ApplyNeighbourhoodProcessingWithAMask(
-            args.coord_for_masking, radius, lead_times=args.lead_times,
+            args.coord_for_masking, radius, lead_times=args.radii_lead_times,
             sum_or_fraction=args.sum_or_fraction).process(cube, mask_cube)
 
         # Collapse with the masking dimension.

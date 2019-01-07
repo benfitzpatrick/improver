@@ -31,14 +31,14 @@
 
 . $IMPROVER_DIR/tests/lib/utils
 
-@test "nbhood 'probabilities' 'square' --radius=20000 input output --apply-recursive-filter --alpha_x 0.8 --alpha_y 0.8 --iterations 5" {
+@test "nbhood --radius=20000 input output --alpha_x 0.8 --alpha_y 0.8 --iterations 5" {
   improver_check_skip_acceptance
   KGO="nbhood/recursive/kgo_internal_mask_no_re_mask_recursive_alpha.nc"
 
   # Run square neighbourhood processing, apply recursive filter and check it passes.
-  run improver nbhood 'probabilities' 'square' --radius=20000 \
+  run improver nbhood --radius=20000 \
       "$IMPROVER_ACC_TEST_DIR/nbhood/mask/input_masked.nc" \
-      "$TEST_DIR/output.nc" --apply-recursive-filter \
+      "$TEST_DIR/output.nc" \
       --alpha_x=0.8 --alpha_y=0.8 --iterations=5
   [[ "$status" -eq 0 ]]
 

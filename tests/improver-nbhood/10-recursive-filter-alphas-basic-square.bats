@@ -31,7 +31,7 @@
 
 . $IMPROVER_DIR/tests/lib/utils
 
-@test "nbhood 'probabilities' 'square' --radius=20000 input output --apply-recursive-filter --input_filepath_alphas_x_cube --input_filepath_alphas_y_cube --iterations 5" {
+@test "nbhood --radius=20000 input output --alpha_x --alpha_y --iterations 5" {
   improver_check_skip_acceptance
   KGO="nbhood/recursive/kgo_recursive_alphas_gridded.nc"
 
@@ -39,8 +39,8 @@
   run improver nbhood 'probabilities' 'square' --radius=20000 \
       "$IMPROVER_ACC_TEST_DIR/nbhood/basic/input_square.nc" \
       "$TEST_DIR/output.nc" --apply-recursive-filter \
-      --input_filepath_alphas_x_cube="$IMPROVER_ACC_TEST_DIR/nbhood/recursive/alphasx.nc" \
-      --input_filepath_alphas_y_cube="$IMPROVER_ACC_TEST_DIR/nbhood/recursive/alphasy.nc" --iterations=5
+      --alphas_x="$IMPROVER_ACC_TEST_DIR/nbhood/recursive/alphasx.nc" \
+      --alphas_y="$IMPROVER_ACC_TEST_DIR/nbhood/recursive/alphasy.nc" --iterations=5
   [[ "$status" -eq 0 ]]
 
   improver_check_recreate_kgo "output.nc" $KGO

@@ -31,12 +31,12 @@
 
 . $IMPROVER_DIR/tests/lib/utils
 
-@test "nbhood 'square' --radius=20000 input output" {
+@test "nbhood 'square' --no-recursive-filter --radius=20000 input output" {
   improver_check_skip_acceptance
   KGO="nbhood/basic/kgo_square.nc"
 
   # Run square neighbourhood processing and check it passes.
-  run improver nbhood 'probabilities' 'square' --radius=20000 --weighted_mode\
+  run improver nbhood --no-recursive-filter --radius=20000 \
       "$IMPROVER_ACC_TEST_DIR/nbhood/basic/input_square.nc" \
       "$TEST_DIR/output_square.nc"
   [[ "$status" -eq 0 ]]
