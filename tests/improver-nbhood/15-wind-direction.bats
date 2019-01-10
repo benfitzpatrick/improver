@@ -38,7 +38,7 @@
   # Run square neighbourhood processing and check it passes.
   run improver nbhood --radius=20000 \
       "$IMPROVER_ACC_TEST_DIR/nbhood/wind_direction/input.nc" \
-      "$TEST_DIR/output.nc" --degrees_as_complex
+      "$TEST_DIR/output.nc" --degrees_as_complex --no-recursive-filter
   [[ "$status" -eq 0 ]]
 
   improver_check_recreate_kgo "output.nc" $KGO

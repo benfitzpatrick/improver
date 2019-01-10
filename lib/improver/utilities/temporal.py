@@ -35,7 +35,6 @@ import re
 from datetime import datetime
 from datetime import time as dt_time
 from datetime import timedelta
-from datetime import timezone
 import warnings
 
 import numpy as np
