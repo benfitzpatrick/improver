@@ -186,8 +186,9 @@ def main():
 
         # Collapse with the masking dimension.
         if weights_cube is not None:
+            print("landsea mode", landsea_mode, "weights_cube attributes", weights_cube.attributes, "seapoints?", weights_cube.attributes.get(coord_for_masking + 's_include_seapoints'))
             if landsea_mode and weights_cube.attributes.get(
-                coord_for_masking + 's_include_seapoints') == 'True':
+                    coord_for_masking + 's_include_seapoints') == 'True':
                 raise ValueError('The weights cube must be masked to '
                                  'exclude sea points, but '
                                  'topographic_zones_include_seapoints '
