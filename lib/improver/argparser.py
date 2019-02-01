@@ -384,7 +384,6 @@ class ArgParser(ArgumentParser):
                 if isinstance(argspec_flags, str):
                     argspec_flags = [argspec_flags]
                 argspec_groups[argspec_flags[0]] = group
-        print("argspec groups", argspec_groups)
         for argspec in argspec_list:
             if len(argspec) != 2:
                 raise AttributeError(
@@ -402,7 +401,6 @@ class ArgParser(ArgumentParser):
             # Add the argument to either a mutually exclusive group, or just
             # self.
             target = argspec_groups.get(argflags[0], self)
-            print("argspec", argflags[0], "target", target)
             target.add_argument(*argflags, **argkwargs)
 
     def parse_args(self, args=None, namespace=None):

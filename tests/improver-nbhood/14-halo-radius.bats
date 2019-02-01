@@ -36,7 +36,7 @@
   KGO="nbhood/halo/kgo.nc"
 
   # Run square neighbourhood processing and check it passes.
-  run improver nbhood 'probabilities' 'square' --radius=20000 --weighted_mode\
+  run improver nbhood --radius=20000 --kernel=circular_weighted \
       --halo_radius=162000 \
       "$IMPROVER_ACC_TEST_DIR/nbhood/halo/input.nc" \
       "$TEST_DIR/output_halo.nc"
