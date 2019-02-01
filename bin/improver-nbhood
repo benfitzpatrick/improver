@@ -129,21 +129,27 @@ def main():
         save_netcdf(result, args.output_filepath)
         return
 
+    weights_cube = None
+    if args.mask_weights is not None:
+        weights_cube = load_cube(args.mask_weights)
+
+
     coord_for_masking = args.coord_for_masking
     landsea_mode = False
     if args.mask:
         mask_cube = load_cube(args.mask)
     elif args.landsea_mask:
         landsea_mode = True
-        mask_cube = load_cube(args.landsea_mask)
+        if coord_for_masking is None:
+            mask_cube = load_cube(args.landsea_mask)
+        else:
+            mask_cube = weights_cube[0].copy(data=weights_cube[0].data.mask)
+            mask_cube.rename('land_binary_mask')
+            mask_cube.remove_coord(coord_for_masking)
+
         sea_only = mask_cube.copy(
             data=np.logical_not(mask_cube.data).astype(int))
         land_only = mask_cube.copy(data=mask_cube.data.astype(int))
-        if mask_cube.attributes.get(
-                'topographic_zones_include_seapoints') == 'True':
-            raise ValueError('The topographic zones mask cube must have been '
-                             'masked to exclude sea points, but '
-                             'topographic_zones_include_seapoints = True')
         if land_only.data.max() > 0.0 and coord_for_masking is None:
             mask_cube = land_only
     else:
@@ -162,16 +168,15 @@ def main():
             sum_or_fraction=args.sum_or_fraction).process(cube, mask_cube)
 
         # Collapse with the masking dimension.
-        if args.mask_weights is not None:
-            weights = load_cube(args.mask_weights)
-            if landmask is not None and weights.attributes.get(
+        if weights_cube is not None:
+            if landsea_mode and weights_cube.attributes.get(
                 'topographic_zones_include_seapoints') == 'True':
                 raise ValueError('The weights cube must be masked to '
                                  'exclude sea points, but '
                                  'topographic_zones_include_seapoints '
                                  '= True')
             result = CollapseMaskedNeighbourhoodCoordinate(
-                args.coord_for_masking, weights=weights).process(result)
+                args.coord_for_masking, weights=weights_cube).process(result)
 
     if not args.no_recursive_filter:
         # Apply the recursive filter.
