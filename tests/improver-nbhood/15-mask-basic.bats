@@ -38,8 +38,9 @@
   # Run neighbourhood processing and check it passes.
   run improver nbhood --coord_for_masking='topographic_zone' --radius=20000 \
       --no-recursive-filter \
-      --input_mask_filepath="$IMPROVER_ACC_TEST_DIR/nbhood-iterate-with-mask/basic/input.nc" \
-      "$IMPROVER_ACC_TEST_DIR/nbhood-iterate-with-mask/basic/mask.nc" "$TEST_DIR/output.nc"
+      --input_mask_filepath="$IMPROVER_ACC_TEST_DIR/nbhood-iterate-with-mask/basic/mask.nc" \
+      "$IMPROVER_ACC_TEST_DIR/nbhood-iterate-with-mask/basic/input.nc" \
+      "$TEST_DIR/output.nc"
   [[ "$status" -eq 0 ]]
 
   improver_check_recreate_kgo "output.nc" $KGO
