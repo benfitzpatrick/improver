@@ -191,7 +191,6 @@ class ApplyNeighbourhoodProcessingWithAMask(object):
                 output_cube = NeighbourhoodProcessing(
                     self.neighbourhood_method, self.radii,
                     lead_times=self.lead_times,
-                    weighted_mode=self.weighted_mode,
                     sum_or_fraction=self.sum_or_fraction, re_mask=self.re_mask
                     ).process(x_y_slice, mask_cube=cube_slice)
                 coord_object = cube_slice.coord(self.coord_for_masking).copy()
