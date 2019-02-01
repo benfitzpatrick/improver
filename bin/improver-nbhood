@@ -143,14 +143,16 @@ def main():
         mask_cube = load_cube(args.landsea_mask)
         if coord_for_masking is None:
             landmask_cube = mask_cube
+            landmask_data = landmask_cube.data
         else:
             landmask_cube = weights_cube[0].copy(data=weights_cube[0].data.mask)
             landmask_cube.rename('land_binary_mask')
             landmask_cube.remove_coord(coord_for_masking)
+            landmask_data = np.logical_not(landmask_cube.data)
 
+        land_only = landmask_cube.copy(data=landmask_data.astype(int))
         sea_only = landmask_cube.copy(
-            data=np.logical_not(landmask_cube.data).astype(int))
-        land_only = landmask_cube.copy(data=landmask_cube.data.astype(int))
+            data=np.logical_not(landmask_data).astype(int))
         if land_only.data.max() > 0.0 and coord_for_masking is None:
             mask_cube = land_only
     else:
