@@ -135,7 +135,7 @@ def main():
     landmask = None
     if args.input_landsea_mask_filepath is not None:
         landmask = load_cube(args.input_landsea_mask_filepath)
-        sea_only = landsea.copy(
+        sea_only = landmask.copy(
             data=np.logical_not(landmask.data).astype(int))
         land_only = landmask.copy(data=landmask.data.astype(int))
         if mask_cube.attributes.get(
