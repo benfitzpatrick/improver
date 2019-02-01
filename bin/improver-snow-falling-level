@@ -84,11 +84,11 @@ def main():
                               "derived value."))
     args = parser.parse_args()
 
-    temperature = load_cube(args.temperature, no_lazy_load=True)
-    relative_humidity = load_cube(args.relative_humidity, no_lazy_load=True)
-    pressure = load_cube(args.pressure, no_lazy_load=True)
-    orog = load_cube(args.orography, no_lazy_load=True)
-    land_sea = load_cube(args.land_sea_mask, no_lazy_load=True)
+    temperature = load_cube(args.temperature)
+    relative_humidity = load_cube(args.relative_humidity)
+    pressure = load_cube(args.pressure)
+    orog = load_cube(args.orography)
+    land_sea = load_cube(args.land_sea_mask)
 
     result = FallingSnowLevel(
         precision=args.precision,

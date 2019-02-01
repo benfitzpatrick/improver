@@ -39,7 +39,7 @@ from improver.utilities.cube_manipulation import (
     enforce_coordinate_ordering, merge_cubes)
 
 
-def load_cube(filepath, constraints=None, no_lazy_load=False):
+def load_cube(filepath, constraints=None, lazy_load=False):
     """Load the filepath provided using Iris into a cube.
 
     Args:
@@ -51,10 +51,10 @@ def load_cube(filepath, constraints=None, no_lazy_load=False):
             This can be in the form of an iris.Constraint or could be a string
             that is intended to match the name of the cube.
             The default is None.
-        no_lazy_load (bool)
-            If True, bypass cube deferred (lazy) loading and load the whole
-            cube into memory. This can increase performance at the cost of
-            memory. If False (default) then lazy load.
+        lazy_load (bool)
+            If False (default), bypass cube deferred (lazy) loading and load
+            the whole cube into memory. This can increase performance at the
+            cost of memory. If True (default) then lazy load instead.
 
     Returns:
         cube (iris.cube.Cube):
@@ -95,13 +95,13 @@ def load_cube(filepath, constraints=None, no_lazy_load=False):
     y_name = cube.coord(axis="y").name()
     x_name = cube.coord(axis="x").name()
     cube = enforce_coordinate_ordering(cube, [y_name, x_name], anchor="end")
-    if no_lazy_load:
+    if not lazy_load:
         # Force the cube's data into memory by touching the .data attribute.
         cube.data
     return cube
 
 
-def load_cubelist(filepath, constraints=None, no_lazy_load=False):
+def load_cubelist(filepath, constraints=None, lazy_load=False):
     """Load one cube from each of the filepath(s) provided using Iris into
     a cubelist.
 
@@ -113,10 +113,10 @@ def load_cubelist(filepath, constraints=None, no_lazy_load=False):
             This can be in the form of an iris.Constraint or could be a string
             that is intended to match the name of the cube.
             The default is None.
-        no_lazy_load (bool)
-            If True, bypass cube deferred (lazy) loading and load the whole
-            cube into memory. This can increase performance at the cost of
-            memory. If False (default) then lazy load.
+        lazy_load (bool)
+            If False (default), bypass cube deferred (lazy) loading and load
+            the whole cube into memory. This can increase performance at the
+            cost of memory. If True then lazy load instead.
 
     Returns:
         cubelist (iris.cube.CubeList):
@@ -134,11 +134,9 @@ def load_cubelist(filepath, constraints=None, no_lazy_load=False):
     cubelist = iris.cube.CubeList([])
     for filepath in filepaths:
         try:
-            cube = load_cube(filepath, constraints=constraints)
+            cube = load_cube(filepath, constraints=constraints,
+                             lazy_load=lazy_load)
         except ValueError:
             continue
-        if no_lazy_load:
-            # Force the cube's data into memory by touching the .data.
-            cube.data
         cubelist.append(cube)
     return cubelist

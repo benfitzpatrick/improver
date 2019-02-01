@@ -206,15 +206,15 @@ class Test_load_cube(IrisTest):
         with self.assertRaisesRegexp(ValueError, msg):
             load_cube(self.filepath, 'prefixes')
 
-    def test_no_lazy_load(self):
+    def test_not_lazy_load(self):
         """Test that the cube returned upon loading does not contain
         lazy data."""
-        result = load_cube(self.filepath, no_lazy_load=True)
+        result = load_cube(self.filepath)
         self.assertFalse(result.has_lazy_data())
 
     def test_lazy_load(self):
         """Test that the loading works correctly with lazy loading."""
-        result = load_cube(self.filepath)
+        result = load_cube(self.filepath, lazy_load=True)
         self.assertTrue(result.has_lazy_data())
 
 
@@ -311,11 +311,10 @@ class Test_load_cubelist(IrisTest):
         self.assertArrayAlmostEqual(
             result[0].coord("longitude").points, self.longitude_points)
 
-    def test_no_lazy_load(self):
+    def test_not_lazy_load(self):
         """Test that the cubelist returned upon loading does not contain
         lazy data."""
-        result = load_cubelist([self.filepath, self.filepath],
-                               no_lazy_load=True)
+        result = load_cubelist([self.filepath, self.filepath])
         self.assertArrayEqual([False, False],
                               [_.has_lazy_data() for _ in result])
         for cube in result:
@@ -331,7 +330,7 @@ class Test_load_cubelist(IrisTest):
     def test_lazy_load(self):
         """Test that the cubelist returned upon loading does contain
         lazy data."""
-        result = load_cubelist([self.filepath, self.filepath])
+        result = load_cubelist([self.filepath, self.filepath], lazy_load=True)
         self.assertArrayEqual([True, True],
                               [_.has_lazy_data() for _ in result])
 
