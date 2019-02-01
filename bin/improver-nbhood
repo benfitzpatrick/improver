@@ -135,7 +135,6 @@ def main():
         mask_cube = load_cube(args.mask)
     elif args.landsea_mask:
         landsea_mode = True
-        coord_for_masking = 'topographic_zone'
         mask_cube = load_cube(args.landsea_mask)
         sea_only = mask_cube.copy(
             data=np.logical_not(mask_cube.data).astype(int))
