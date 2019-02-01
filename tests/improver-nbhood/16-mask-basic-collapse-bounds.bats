@@ -38,9 +38,9 @@
   # Run neighbourhood processing and check it passes.
   run improver nbhood --coord_for_masking='topographic_zone' --radius=10000 \
      --input_mask_filepath="$IMPROVER_ACC_TEST_DIR/nbhood-iterate-with-mask/basic_collapse_bands/orographic_bands_mask.nc" \
-     --input_mask_collapse_weights_filepath "$IMPROVER_ACC_TEST_DIR/nbhood-iterate-with-mask/basic_collapse_bands/orographic_bands_weights.nc"
+     --input_mask_collapse_weights_filepath "$IMPROVER_ACC_TEST_DIR/nbhood-iterate-with-mask/basic_collapse_bands/orographic_bands_weights.nc" \
      "$IMPROVER_ACC_TEST_DIR/nbhood-iterate-with-mask/basic_collapse_bands/thresholded_input.nc" \
-     "$TEST_DIR/output.nc"  \
+     "$TEST_DIR/output.nc"
   [[ "$status" -eq 0 ]]
 
   improver_check_recreate_kgo "output.nc" $KGO
