@@ -36,6 +36,7 @@
 
   # Run neighbourhood processing and check it passes.
   run improver nbhood --radius=20000 \
+      --coord_for_masking="topographic_zone" \
       --landsea_mask="$IMPROVER_ACC_TEST_DIR/nbhood-land-and-sea/topographic_bands/topographic_bands_land.nc" \
       "$IMPROVER_ACC_TEST_DIR/nbhood-land-and-sea/topographic_bands/input.nc" "$TEST_DIR/output.nc"
   [[ "$status" -eq 1 ]]
