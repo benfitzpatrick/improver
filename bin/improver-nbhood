@@ -129,9 +129,11 @@ def main():
         save_netcdf(result, args.output_filepath)
         return
 
+    landsea_mode = False
     if args.mask:
         mask_cube = load_cube(args.mask)
     elif args.landsea_mask:
+        landsea_mode = True
         mask_cube = load_cube(args.landsea_mask)
         sea_only = mask_cube.copy(
             data=np.logical_not(mask_cube.data).astype(int))
@@ -141,7 +143,7 @@ def main():
             raise ValueError('The topographic zones mask cube must have been '
                              'masked to exclude sea points, but '
                              'topographic_zones_include_seapoints = True')
-        if land_only.data.max() > 0.0:
+        if land_only.data.max() > 0.0 and args.coord_for_masking is None:
             mask_cube = land_only
     else:
         mask_cube = None
@@ -155,7 +157,8 @@ def main():
         # Multiple masks.
         result = ApplyNeighbourhoodProcessingWithAMask(
             args.coord_for_masking, radius, lead_times=args.radii_lead_times,
-            sum_or_fraction=args.sum_or_fraction).process(cube, mask_cube)
+            sum_or_fraction=args.sum_or_fraction,
+            re_mask=landsea_mode).process(cube, mask_cube)
 
         # Collapse with the masking dimension.
         if args.mask_weights is not None:
