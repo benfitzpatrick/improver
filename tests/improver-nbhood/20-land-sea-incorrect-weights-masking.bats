@@ -43,5 +43,6 @@
   read -d '' expected <<'__TEXT__' || true
 The weights cube must be masked to exclude sea
 __TEXT__
+  echo "$output" >/dev/tty
   [[ "$output" =~ "$expected" ]]
 }
