@@ -153,7 +153,7 @@ def main():
         else:
             if weights_cube is None and any(
                     [coord_for_masking in coord.name()
-                     for coord in mask_cube.coords(dim_coords=True)])::
+                     for coord in mask_cube.coords(dim_coords=True)]):
                 raise Exception(
                     'A weights cube must be provided if using a landsea mask '
                     'of topographic zones to collapse the resulting vertical '
