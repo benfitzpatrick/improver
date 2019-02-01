@@ -191,7 +191,7 @@ def main():
                 result, alphas_x=alphas_x_cube, alphas_y=alphas_y_cube,
                 mask_cube=mask_cube)
 
-    if landmask is not None:
+    if args.landsea_mask:
         # Process the sea data separately.
         if sea_only.data.max() > 0.0:
             result_sea = NeighbourhoodProcessing(
