@@ -144,13 +144,19 @@ def main():
         landsea_mode = True
         mask_cube = load_cube(args.landsea_mask)
         if coord_for_masking is None:
-            landmask_cube = mask_cube
-            landmask_data = landmask_cube.data
             if weights_cube is not None:
                 warnings.warn(
                     'A weights cube has been provided but will not be used '
                     'as there is no topographic zone coordinate to collapse.')
+            landmask_cube = mask_cube
+            landmask_data = landmask_cube.data
         else:
+            if weights_cube is None:
+                raise Exception(
+                    'A weights cube must be provided if using a mask of '
+                    'topographic zones to collapse the resulting vertical '
+                    'dimension.'
+                )
             landmask_cube = weights_cube[0].copy(data=weights_cube[0].data.mask)
             landmask_cube.rename('land_binary_mask')
             landmask_cube.remove_coord(coord_for_masking)
