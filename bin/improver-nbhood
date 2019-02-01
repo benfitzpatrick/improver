@@ -31,6 +31,8 @@
 # POSSIBILITY OF SUCH DAMAGE.
 """Script to run neighbourhood processing."""
 
+import numpy as np
+
 from improver.argparser import ArgParser
 from improver.constants import DEFAULT_PERCENTILES
 from improver.nbhood.nbhood import (
