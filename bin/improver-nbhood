@@ -144,6 +144,10 @@ def main():
         if coord_for_masking is None:
             landmask_cube = mask_cube
             landmask_data = landmask_cube.data
+            if weights_cube is not None:
+                warnings.warn(
+                    'A weights cube has been provided but will not be used '
+                    'as there is no topographic zone coordinate to collapse.')
         else:
             landmask_cube = weights_cube[0].copy(data=weights_cube[0].data.mask)
             landmask_cube.rename('land_binary_mask')
@@ -169,9 +173,6 @@ def main():
         result = ApplyNeighbourhoodProcessingWithAMask(
             coord_for_masking, radius, lead_times=args.radii_lead_times,
             sum_or_fraction=args.sum_or_fraction).process(cube, mask_cube)
-        import iris
-        iris.save(mask_cube, "mask_new.nc")
-        iris.save(result, "result_new.nc")
 
         # Collapse with the masking dimension.
         if weights_cube is not None:
@@ -183,7 +184,6 @@ def main():
                                  '= True')
             result = CollapseMaskedNeighbourhoodCoordinate(
                 args.coord_for_masking, weights=weights_cube).process(result)
-            iris.save(result, "result_post_weight.nc")
 
     if not args.no_recursive_filter:
         # Apply the recursive filter.
@@ -216,8 +216,6 @@ def main():
                 'square', radius, lead_times=args.radii_lead_times,
                 sum_or_fraction=args.sum_or_fraction,
                 re_mask=True).process(cube, sea_only)
-            iris.save(result_sea, "result_new_sea.nc")
-            iris.save(sea_only, "sea_only_new.nc")
 
         if land_only.data.max() == 0.0:
             result = result_sea
@@ -227,7 +225,6 @@ def main():
             combined_data = (result.data.filled(0) +
                              result_sea.data.filled(0))
             result = result.copy(data=combined_data)
-        iris.save(result, "result_new_post_sea.nc")
 
     if args.degrees_as_complex:
         # convert neighbourhooded cube back to degrees
