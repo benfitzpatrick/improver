@@ -31,7 +31,6 @@
 """Common option utilities for improver CLIs."""
 
 from argparse import ArgumentParser
-
 from improver.profile import profile_hook_enable
 
 
@@ -103,6 +102,19 @@ class ArgParser(ArgumentParser):
              'help': 'Coordinate to iterate over when applying a mask to the '
                      'neighbourhood processing.'}
         ),
+        'coords_to_collapse': (
+            '--coordinates',
+            {'metavar': 'COORDINATES_TO_COLLAPSE',
+             'nargs': '+',
+             'help': 'Coordinate or coordinates over which to collapse data '
+                     'and calculate percentiles; e.g. "realization" or '
+                     '"latitude longitude". This argument must be provided '
+                     'when collapsing a coordinate or coordinates to create '
+                     'percentiles, but is redundant when converting '
+                     'probabilities to percentiles and may be omitted. This '
+                     'coordinate(s) will be removed and replaced by a '
+                     'percentile coordinate.'}
+        ),
         'degrees_as_complex': (
             '--degrees_as_complex',
             {'action': 'store_true',
@@ -110,6 +122,14 @@ class ArgParser(ArgumentParser):
              'help': 'Set this flag to process angles, e.g. wind directions, '
                      'as complex numbers. Not compatible with circular '
                      'or circular weighted kernels or recursive filter.'}
+        ),
+        'ecc_bounds_warning': (
+            '--ecc_bounds_warning',
+            {'action': 'store_true',
+             'default': False,
+             'help': 'If True, where calculated percentiles are outside the '
+                     'ECC bounds range, raise a warning rather than an '
+                     'exception.'}
         ),
         'halo_radius': (
             '--halo_radius',
@@ -178,6 +198,15 @@ class ArgParser(ArgumentParser):
              'help': 'Do not collapse the dimension from the mask '
                      'coordinate.'}
         ),
+        'no_of_percentiles': (
+            '--no-of-percentiles',
+            {'default': None,
+             'type': int,
+             'metavar': 'NUMBER_OF_PERCENTILES',
+             'help': 'Optional definition of the number of percentiles '
+                     'to be generated, these distributed regularly with the '
+                     'aim of dividing into blocks of equal probability.'}
+        ),
         'no_recursive_filter': (
             '--no-recursive-filter',
             {'action': 'store_true',
@@ -189,6 +218,15 @@ class ArgParser(ArgumentParser):
             'output_filepath',
             {'metavar': 'OUTPUT_FILE',
              'help': 'The output path for the processed NetCDF'}
+        ),
+        'percentiles': (
+            '--percentiles',
+            {'default': None,
+             'metavar': 'PERCENTILES',
+             'nargs': '+',
+             'type': float,
+             'help': 'Optional definition of percentiles at which to '
+                     'calculate data, e.g. --percentiles 0 33.3 66.6 100'}
         ),
         'radius': (
             '--radius',
@@ -253,7 +291,7 @@ class ArgParser(ArgumentParser):
     DEFAULT_CENTRALIZED_ARG_NAMES = ()
 
     def __init__(self, central_arguments=DEFAULT_CENTRALIZED_ARG_NAMES,
-                 specific_arguments=None, **kwargs):
+                 specific_arguments=None, exclusive_groups=None, **kwargs):
         """Create an ArgParse instance, which is a subclass of
         argparse.ArgumentParser and automatically add all of the arguments.
         (Note: The ArgParse.COMPULSORY_ARGUMENTS are always added.)
@@ -271,6 +309,10 @@ class ArgParser(ArgumentParser):
                 ArgParser.CENTRALIZED_ARGUMENTS dictionary.
                 (For more details, see the add_arguments method).
                 Default is None, which does not add additional arguments.
+            exclusive_groups (list of lists):
+                A list of items which are sets or lists of exclusive arguments
+                following the argparse add_mutually_exclusive_group
+                functionality.
             kwargs (dictionary):
                 Additional keyword arguments which are passed to the superclass
                 constructor (argparse.ArgumentParser), e.g: the `description`
@@ -283,6 +325,9 @@ class ArgParser(ArgumentParser):
             central_arguments = []
         if specific_arguments is None:
             specific_arguments = []
+
+        if exclusive_groups is None:
+            exclusive_groups = []
 
         # argspecs of the compulsory arguments (no switch here)
         compulsory_arguments = list(ArgParser.COMPULSORY_ARGUMENTS.values())
@@ -299,10 +344,10 @@ class ArgParser(ArgumentParser):
                          specific_arguments)
 
         # automatically add all of the arguments
-        self.add_arguments(cli_arguments)
+        self.add_arguments(cli_arguments, exclusive_groups)
         # Done. Now we can get the arguments with self.parse_args()
 
-    def add_arguments(self, argspec_list):
+    def add_arguments(self, argspec_list, exclusive_groups):
         """Adds a list of arguments to the ArgumentParser.
 
         The input argspec_list is a list of argument specifications, where each
@@ -317,12 +362,22 @@ class ArgParser(ArgumentParser):
             argspec_list (list or string):
                 A list or string containing the specifications required to add
                 the arguments (see above)
+            exclusive_groups (list of lists):
+                A list of items which are sets or lists of exclusive arguments
+                following the argparse add_mutually_exclusive_group
+                functionality but using the string specification from
+                argspec_list.
 
         Raises:
             AttributeError:
                 Notifies the user if any of the argument specifications has
                 the wrong length (not 2).
         """
+        argspec_groups = {}
+        for exclusive_group in exclusive_groups:
+            group = self.add_mutually_exclusive_group()
+            for argspec in exclusive_group:
+                argspec_groups[argspec] = group
         for argspec in argspec_list:
             if len(argspec) != 2:
                 raise AttributeError(
@@ -337,7 +392,10 @@ class ArgParser(ArgumentParser):
                 argtype = argtype.replace('self.', '')
                 argkwargs['type'] = getattr(self, argtype,
                                             argkwargs['type'])
-            self.add_argument(*argflags, **argkwargs)
+            # Add the argument to either a mutually exclusive group, or just
+            # self.
+            target = argspec_groups.get(argspec, self)
+            target.add_argument(*argflags, **argkwargs)
 
     def parse_args(self, args=None, namespace=None):
         """Wrap in order to implement some compulsory behaviour."""

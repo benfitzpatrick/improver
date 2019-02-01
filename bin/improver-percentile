@@ -49,45 +49,23 @@ from improver.utilities.save import save_netcdf
 def main():
     """Load in arguments and get going."""
     parser = ArgParser(
+        central_arguments=["input_filepath", "output_filepath",
+                           "coords_to_collapse", "ecc_bounds_warning",
+                           "percentiles", "no_of_percentiles",
+                           "radius_required", "radii_lead_times"],
+        exclusive_groups=[["percentiles", "no_of_percentiles"]],
         description="Calculate percentiled data over a given coordinate by "
         "collapsing that coordinate. Typically used to convert realization "
         "data into percentiled data, but may calculate over any "
         "dimension coordinate. Alternatively, calling this CLI with a dataset"
         " containing probabilities will convert those to percentiles using "
-        "the ensemble copula coupling plugin. If no particular percentiles "
-        "are given at which to calculate values and no 'number of percentiles'"
-        " to calculate are specified, the following defaults will be used: "
-        "[0, 5, 10, 20, 25, 30, 40, 50, 60, 70, 75, 80, 90, 95, 100]")
-    parser.add_argument("input_filepath", metavar="INPUT_FILE",
-                        help="A path to an input NetCDF file to be processed")
-    parser.add_argument("output_filepath", metavar="OUTPUT_FILE",
-                        help="The output path for the processed NetCDF")
-    parser.add_argument("--coordinates", metavar="COORDINATES_TO_COLLAPSE",
-                        nargs="+",
-                        help="Coordinate or coordinates over which to collapse"
-                        " data and calculate percentiles; e.g. "
-                        "'realization' or 'latitude longitude'. This argument "
-                        "must be provided when collapsing a coordinate or "
-                        "coordinates to create percentiles, but is redundant "
-                        "when converting probabilities to percentiles and may "
-                        "be omitted. This coordinate(s) will be removed "
-                        "and replaced by a percentile coordinate.")
-    parser.add_argument('--ecc_bounds_warning', default=False,
-                        action='store_true',
-                        help='If True, where calculated percentiles are '
-                             'outside the ECC bounds range, raise a warning '
-                             'rather than an exception.')
-    group = parser.add_mutually_exclusive_group(required=False)
-    group.add_argument("--percentiles", metavar="PERCENTILES",
-                       nargs="+", default=None, type=float,
-                       help="Optional definition of percentiles at which to "
-                       "calculate data, e.g. --percentiles 0 33.3 66.6 100")
-    group.add_argument('--no-of-percentiles', default=None, type=int,
-                       metavar='NUMBER_OF_PERCENTILES',
-                       help="Optional definition of the number of percentiles "
-                       "to be generated, these distributed regularly with the "
-                       "aim of dividing into blocks of equal probability.")
-
+        "the ensemble copula coupling plugin. Alternatively, if called with "
+        "--radius/--radii-lead-times then a spatial neighbourhood is used to "
+        "derive percentiles. If no particular percentiles are given at which "
+        "to calculate values and no 'number of percentiles' to calculate are "
+        "specified, the following defaults will be used: "
+        "[0, 5, 10, 20, 25, 30, 40, 50, 60, 70, 75, 80, 90, 95, 100]"
+    )
     args = parser.parse_args()
     cube = load_cube(args.input_filepath)
     percentiles = args.percentiles
@@ -95,15 +73,16 @@ def main():
         percentiles = choose_set_of_percentiles(args.no_of_percentiles,
                                                 sampling="quantile")
 
-    if args.nbhood_radius:
-        if ',' in args.nbhood_radius:
-            radius = [float(_) for _ in radius.split(",")]
-        else:
-            radius = float(radius)
+    if args.radius:
+        radius = args.radius
+        if len(radius) == 1:
+            radius = radius[0]
+        elif not args.radii_lead_times:
+            parser.error('Multiple radii given but no lead times specified')
         result = (
             GeneratePercentilesFromANeighbourhood(
                 'circular', radius,
-                lead_times=args.nbhood_lead_times,
+                lead_times=args.radii_lead_times,
                 percentiles=percentiles
                 ).process(cube))
 
