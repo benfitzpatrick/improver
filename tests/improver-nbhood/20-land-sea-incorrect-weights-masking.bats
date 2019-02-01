@@ -36,6 +36,7 @@
 
   # Run neighbourhood processing and check it passes.
   run improver nbhood --radius=20000 --no-recursive-filter \
+      --coord_for_masking='topographic_zone' \
       --landsea_mask "$IMPROVER_ACC_TEST_DIR/nbhood-land-and-sea/topographic_bands/topographic_bands_land.nc" \
       --mask_weights "$IMPROVER_ACC_TEST_DIR/nbhood-land-and-sea/topographic_bands/weights_any_surface.nc" \
  "$IMPROVER_ACC_TEST_DIR/nbhood-land-and-sea/topographic_bands/input.nc"  "$TEST_DIR/output.nc"
