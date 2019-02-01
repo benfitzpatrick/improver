@@ -144,7 +144,7 @@ def main():
             raise ValueError('The topographic zones mask cube must have been '
                              'masked to exclude sea points, but '
                              'topographic_zones_include_seapoints = True')
-        if land_only.data.max() > 0.0 and args.coord_for_masking is None:
+        if land_only.data.max() > 0.0 and coord_for_masking is None:
             mask_cube = land_only
     else:
         mask_cube = None
@@ -152,14 +152,14 @@ def main():
     if coord_for_masking is None:
         result = NeighbourhoodProcessing(
             'square', radius, lead_times=args.radii_lead_times,
-            sum_or_fraction=args.sum_or_fraction).process(
+            sum_or_fraction=args.sum_or_fraction,
+            re_mask=landsea_mode).process(
                 cube, mask_cube)
     else:
         # Multiple masks.
         result = ApplyNeighbourhoodProcessingWithAMask(
             coord_for_masking, radius, lead_times=args.radii_lead_times,
-            sum_or_fraction=args.sum_or_fraction,
-            re_mask=landsea_mode).process(cube, mask_cube)
+            sum_or_fraction=args.sum_or_fraction).process(cube, mask_cube)
 
         # Collapse with the masking dimension.
         if args.mask_weights is not None:
