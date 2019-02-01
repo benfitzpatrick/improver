@@ -141,6 +141,8 @@ def main():
             raise ValueError('The topographic zones mask cube must have been '
                              'masked to exclude sea points, but '
                              'topographic_zones_include_seapoints = True')
+        if land_only.data.max() > 0.0:
+            mask_cube = land_only
     else:
         mask_cube = None
 
