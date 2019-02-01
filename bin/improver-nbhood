@@ -185,6 +185,7 @@ def main():
             sum_or_fraction=args.sum_or_fraction).process(cube, mask_cube)
 
         # Collapse with the masking dimension.
+        print("COLLLAPSE>>>>")
         if weights_cube is not None:
             print("landsea mode", landsea_mode, "weights_cube attributes", weights_cube.attributes, "seapoints?", weights_cube.attributes.get(coord_for_masking + 's_include_seapoints'))
             if landsea_mode and weights_cube.attributes.get(
