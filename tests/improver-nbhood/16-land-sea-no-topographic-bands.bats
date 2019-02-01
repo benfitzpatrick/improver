@@ -37,7 +37,7 @@
 
   # Run neighbourhood processing and check it passes.
   run improver nbhood --radius=20000 --no-recursive-filter \
-      --input_landsea_mask_filepath="$IMPROVER_ACC_TEST_DIR/nbhood-land-and-sea/no_topographic_bands/ukvx_landmask.nc" \
+      --landsea_mask="$IMPROVER_ACC_TEST_DIR/nbhood-land-and-sea/no_topographic_bands/ukvx_landmask.nc" \
       "$IMPROVER_ACC_TEST_DIR/nbhood-land-and-sea/no_topographic_bands/input.nc" \
       "$TEST_DIR/output.nc"
   [[ "$status" -eq 0 ]]
