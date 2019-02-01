@@ -336,6 +336,11 @@ class ArgParser(ArgumentParser):
         central_arguments = [ArgParser.CENTRALIZED_ARGUMENTS[arg_name] for
                              arg_name in central_arguments]
 
+        for index, group in enumerate(exclusive_groups):
+            new_group = [ArgParser.CENTRALIZED_ARGUMENTS.get(_) for _ in
+                         group if isinstance(_, str)]
+            exclusive_groups[index] = new_group
+
         # create instance of ArgumentParser (pass along kwargs)
         super(ArgParser, self).__init__(**kwargs)
 
@@ -363,10 +368,9 @@ class ArgParser(ArgumentParser):
                 A list or string containing the specifications required to add
                 the arguments (see above)
             exclusive_groups (list of lists):
-                A list of items which are sets or lists of exclusive arguments
-                following the argparse add_mutually_exclusive_group
-                functionality but using the string specification from
-                argspec_list.
+                A list of lists of argspec-like items. Each list of argspec
+                items corresponds to an argparse add_mutually_exclusive_group
+                functionality.
 
         Raises:
             AttributeError:
@@ -376,8 +380,11 @@ class ArgParser(ArgumentParser):
         argspec_groups = {}
         for exclusive_group in exclusive_groups:
             group = self.add_mutually_exclusive_group()
-            for argspec in exclusive_group:
-                argspec_groups[argspec] = group
+            for argspec_flags, argspec_kwargs in exclusive_group:
+                if isinstance(argspec_flags, str):
+                    argspec_flags = [argspec_flags]
+                argspec_groups[argspec_flags[0]] = group
+        print("argspec groups", argspec_groups)
         for argspec in argspec_list:
             if len(argspec) != 2:
                 raise AttributeError(
@@ -394,7 +401,8 @@ class ArgParser(ArgumentParser):
                                             argkwargs['type'])
             # Add the argument to either a mutually exclusive group, or just
             # self.
-            target = argspec_groups.get(argspec, self)
+            target = argspec_groups.get(argflags[0], self)
+            print("argspec", argflags[0], "target", target)
             target.add_argument(*argflags, **argkwargs)
 
     def parse_args(self, args=None, namespace=None):
