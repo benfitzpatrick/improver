@@ -111,6 +111,17 @@ class ArgParser(ArgumentParser):
                      'as complex numbers. Not compatible with circular '
                      'or circular weighted kernels or recursive filter.'}
         ),
+        'halo_radius': (
+            '--halo_radius',
+            {'default': None,
+             'metavar': 'HALO_RADIUS',
+             'type': float,
+             'help': 'radius in metres of excess halo to clip. '
+                     'Used where a larger grid was defined than the standard '
+                     'grid and we want to clip the grid back to the standard '
+                     'grid e.g. for global data regridded to UK area. '
+                     'Default=None'}
+        ),
         'input_filepath': (
             'input_filepath',
             {'metavar': 'INPUT_FILE',
