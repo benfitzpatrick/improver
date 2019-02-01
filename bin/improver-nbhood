@@ -215,6 +215,7 @@ def main():
                 sum_or_fraction=args.sum_or_fraction,
                 re_mask=True).process(cube, sea_only)
             iris.save(result_sea, "result_new_sea.nc")
+            iris.save(sea_only, "sea_only_new.nc")
 
         if land_only.data.max() == 0.0:
             result = result_sea
