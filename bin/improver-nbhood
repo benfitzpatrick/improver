@@ -159,6 +159,12 @@ def main():
                     'of topographic zones to collapse the resulting vertical '
                     'dimension.'
                 )
+            if landsea_mode and weights_cube.attributes.get(
+                    coord_for_masking + 's_include_seapoints') == 'True':
+                raise ValueError('The weights cube must be masked to '
+                                 'exclude sea points, but '
+                                 'topographic_zones_include_seapoints '
+                                 '= True')
             landmask_cube = weights_cube[0].copy(data=weights_cube[0].data.mask)
             landmask_cube.rename('land_binary_mask')
             landmask_cube.remove_coord(coord_for_masking)
@@ -188,12 +194,6 @@ def main():
         print("COLLLAPSE>>>>")
         if weights_cube is not None:
             print("landsea mode", landsea_mode, "weights_cube attributes", weights_cube.attributes, "seapoints?", weights_cube.attributes.get(coord_for_masking + 's_include_seapoints'))
-            if landsea_mode and weights_cube.attributes.get(
-                    coord_for_masking + 's_include_seapoints') == 'True':
-                raise ValueError('The weights cube must be masked to '
-                                 'exclude sea points, but '
-                                 'topographic_zones_include_seapoints '
-                                 '= True')
             result = CollapseMaskedNeighbourhoodCoordinate(
                 args.coord_for_masking, weights=weights_cube).process(result)
 
