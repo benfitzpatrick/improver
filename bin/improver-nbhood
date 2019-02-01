@@ -124,6 +124,8 @@ def main():
             NeighbourhoodProcessing(
                 args.kernel, radius,
                 lead_times=args.radii_lead_times).process(cube))
+        if args.halo_radius is not None:
+            result = remove_cube_halo(result, args.halo_radius)
         save_netcdf(result, args.output_filepath)
         return
 
