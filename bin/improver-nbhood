@@ -53,9 +53,9 @@ def main():
     parser = ArgParser(
         central_arguments=[
             "radius_required", "radii_lead_times", "halo_radius", "kernel",
-            "degrees_as_complex", "sum_or_fraction", "input_mask_filepath",
-            "coord_for_masking", "input_mask_collapse_weights_filepath",
-            "input_landsea_mask_filepath", "input_filepath",
+            "degrees_as_complex", "sum_or_fraction", "mask_filepath",
+            "coord_for_masking", "mask_weights_filepath",
+            "landsea_mask_filepath", "input_filepath",
             "output_filepath", "no_recursive_filter",
             "alpha_x", "alpha_y", "iterations"],
         description=('Apply variants of neighbourhood processing (spatial '
@@ -86,13 +86,13 @@ def main():
     args = parser.parse_args()
 
     if args.kernel in ["circular", "circular_weighted"]:
-        if args.input_mask_filepath is not None:
+        if args.mask is not None:
             parser.wrong_args_error(
-                'kernel!=square', 'input_mask_filepath')
+                'kernel!=square', 'mask')
 
-        if args.input_landsea_mask_filepath is not None:
+        if args.landsea_mask is not None:
             parser.wrong_args_error(
-                'kernel!=square', 'input_landsea_mask_filepath')
+                'kernel!=square', 'landsea_mask')
 
         if args.coord_for_masking is not None:
             parser.wrong_args_error(
@@ -129,23 +129,20 @@ def main():
         save_netcdf(result, args.output_filepath)
         return
 
-    if args.input_mask_filepath:
+    if args.mask:
         mask_cube = load_cube(args.input_mask_filepath)
-    else:
-        mask_cube = None
-
-    landmask = None
-    if args.input_landsea_mask_filepath is not None:
-        landmask = load_cube(args.input_landsea_mask_filepath)
-        sea_only = landmask.copy(
-            data=np.logical_not(landmask.data).astype(int))
-        land_only = landmask.copy(data=landmask.data.astype(int))
-        mask_cube = landmask
+    elif args.landsea_mask:
+        mask_cube = load_cube(args.input_landsea_mask_filepath)
+        sea_only = mask_cube.copy(
+            data=np.logical_not(mask_cube.data).astype(int))
+        land_only = mask_cube.copy(data=mask_cube.data.astype(int))
         if landmask.attributes.get(
                 'topographic_zones_include_seapoints') == 'True':
             raise ValueError('The topographic zones mask cube must have been '
                              'masked to exclude sea points, but '
                              'topographic_zones_include_seapoints = True')
+    else:
+        mask_cube = None
 
     if args.coord_for_masking is None:
         result = NeighbourhoodProcessing(
@@ -159,8 +156,8 @@ def main():
             sum_or_fraction=args.sum_or_fraction).process(cube, mask_cube)
 
         # Collapse with the masking dimension.
-        if args.input_mask_collapse_weights_filepath is not None:
-            weights = load_cube(args.input_mask_collapse_weights_filepath)
+        if args.mask_weights is not None:
+            weights = load_cube(args.mask_weights)
             if landmask is not None and weights.attributes.get(
                 'topographic_zones_include_seapoints') == 'True':
                 raise ValueError('The weights cube must be masked to '

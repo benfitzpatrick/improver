@@ -146,30 +146,6 @@ class ArgParser(ArgumentParser):
             'input_filepath',
             {'metavar': 'INPUT_FILE',
              'help': 'A path to an input NetCDF file to be processed'}),
-        'input_mask_collapse_weights_filepath': (
-            '--input_mask_collapse_weights_filepath',
-            {'metavar': 'INPUT_MASK_WEIGHTS_FILE',
-             'default': None,
-             'help': 'A path to an weights NetCDF file containing the weights '
-                     'which are used for collapsing the dimension gained '
-                     'through masking. If not given, the mask dimension will '
-                     'not be collapsed.'}
-        ),
-        'input_mask_filepath': (
-            '--input_mask_filepath',
-            {'metavar': 'INPUT_MASK_FILE',
-             'help': 'A path to an input mask NetCDF file to be used to mask '
-                     'the input file. This is currently only supported for '
-                     'square neighbourhoods. The data should contain 1 for '
-                     'usable points and 0 for discarded points, e.g. a '
-                     'land-mask.'}
-        ),
-        'input_landsea_mask_filepath': (
-            '--input_landsea_mask_filepath',
-            {'metavar': 'LANDSEA_FILE',
-             'help': 'A path to an input logical mask NetCDF file to be used '
-                     'to distinguish land (True) from sea (False).'}
-        ),
         'iterations': (
             '--iterations',
             {'metavar': 'ITERATIONS',
@@ -191,6 +167,30 @@ class ArgParser(ArgumentParser):
                      'Only the square kernel supports the full range of '
                      'options like masking, complex number processing, and '
                      'sum or fraction.'}
+        ),
+        'landsea_mask_filepath': (
+            '--landsea_mask',
+            {'metavar': 'LANDSEA_FILE',
+             'help': 'A path to an input logical mask NetCDF file to be used '
+                     'to distinguish land (True) from sea (False).'}
+        ),
+        'mask_filepath': (
+            '--mask',
+            {'metavar': 'INPUT_MASK_FILE',
+             'help': 'A path to an input mask NetCDF file to be used to mask '
+                     'the input file. This is currently only supported for '
+                     'square neighbourhoods. The data should contain 1 for '
+                     'usable points and 0 for discarded points, e.g. a '
+                     'land-mask.'}
+        ),
+        'mask_weights_filepath': (
+            '--mask_weights',
+            {'metavar': 'INPUT_MASK_WEIGHTS_FILE',
+             'default': None,
+             'help': 'A path to an weights NetCDF file containing the weights '
+                     'which are used for collapsing the dimension gained '
+                     'through masking. If not given, the mask dimension will '
+                     'not be collapsed.'}
         ),
         'no_collapse_mask': (
             '--no-collapse-mask',
