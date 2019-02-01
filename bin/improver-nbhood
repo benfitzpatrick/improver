@@ -151,7 +151,7 @@ def main():
         result = NeighbourhoodProcessing(
             'square', radius, lead_times=args.radii_lead_times,
             sum_or_fraction=args.sum_or_fraction).process(
-                cube, mask)
+                cube, mask_cube)
     else:
         # Multiple masks.
         result = ApplyNeighbourhoodProcessingWithAMask(
