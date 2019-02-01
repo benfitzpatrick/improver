@@ -130,9 +130,9 @@ def main():
         return
 
     if args.mask:
-        mask_cube = load_cube(args.input_mask_filepath)
+        mask_cube = load_cube(args.mask)
     elif args.landsea_mask:
-        mask_cube = load_cube(args.input_landsea_mask_filepath)
+        mask_cube = load_cube(args.landsea_mask)
         sea_only = mask_cube.copy(
             data=np.logical_not(mask_cube.data).astype(int))
         land_only = mask_cube.copy(data=mask_cube.data.astype(int))
