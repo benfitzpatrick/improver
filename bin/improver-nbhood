@@ -140,6 +140,7 @@ def main():
         sea_only = landmask.copy(
             data=np.logical_not(landmask.data).astype(int))
         land_only = landmask.copy(data=landmask.data.astype(int))
+        mask_cube = landmask
         if landmask.attributes.get(
                 'topographic_zones_include_seapoints') == 'True':
             raise ValueError('The topographic zones mask cube must have been '
@@ -147,11 +148,6 @@ def main():
                              'topographic_zones_include_seapoints = True')
 
     if args.coord_for_masking is None:
-        # Simple mask - use land mask if in land-sea mode.
-        if landmask is None:
-            mask = mask_cube
-        else:
-            mask = land_only
         result = NeighbourhoodProcessing(
             'square', radius, lead_times=args.radii_lead_times,
             sum_or_fraction=args.sum_or_fraction).process(
