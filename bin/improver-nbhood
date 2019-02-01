@@ -202,7 +202,7 @@ def main():
         # Process the sea data separately.
         if sea_only.data.max() > 0.0:
             result_sea = NeighbourhoodProcessing(
-                'square', radius, lead_times=lead_times,
+                'square', radius, lead_times=args.radii_lead_times,
                 sum_or_fraction=args.sum_or_fraction,
                 re_mask=True).process(cube, sea_only)
 
