@@ -129,11 +129,13 @@ def main():
         save_netcdf(result, args.output_filepath)
         return
 
+    coord_for_masking = args.coord_for_masking
     landsea_mode = False
     if args.mask:
         mask_cube = load_cube(args.mask)
     elif args.landsea_mask:
         landsea_mode = True
+        coord_for_masking = 'topographic_zone'
         mask_cube = load_cube(args.landsea_mask)
         sea_only = mask_cube.copy(
             data=np.logical_not(mask_cube.data).astype(int))
@@ -148,7 +150,7 @@ def main():
     else:
         mask_cube = None
 
-    if args.coord_for_masking is None:
+    if coord_for_masking is None:
         result = NeighbourhoodProcessing(
             'square', radius, lead_times=args.radii_lead_times,
             sum_or_fraction=args.sum_or_fraction).process(
