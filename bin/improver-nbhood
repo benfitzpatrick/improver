@@ -158,7 +158,7 @@ def main():
     else:
         # Multiple masks.
         result = ApplyNeighbourhoodProcessingWithAMask(
-            args.coord_for_masking, radius, lead_times=args.radii_lead_times,
+            coord_for_masking, radius, lead_times=args.radii_lead_times,
             sum_or_fraction=args.sum_or_fraction,
             re_mask=landsea_mode).process(cube, mask_cube)
 
