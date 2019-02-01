@@ -187,6 +187,7 @@ class ApplyNeighbourhoodProcessingWithAMask(object):
 
             cube_slices = iris.cube.CubeList([])
             # Apply each mask in in mask_cube to the 2D input slice.
+            print("Mask cube coords", mask_cube.coords(), self.coord_for_masking)
             for cube_slice in mask_cube.slices_over(self.coord_for_masking):
                 output_cube = NeighbourhoodProcessing(
                     self.neighbourhood_method, self.radii,
