@@ -260,7 +260,8 @@ def wxcode_decision_tree():
             'threshold_condition': '>=',
             'condition_combination': 'AND',
             'diagnostic_fields': ['probability_of_rainfall_rate',
-                                  'cloud_amount_of_low_cloud'],
+                                  ('probability_of_low_type_' +
+                                   'cloud_area_fraction')],
             'diagnostic_thresholds': [AuxCoord(0.03, units='mm hr-1'),
                                       AuxCoord(0.85, units=1)],
             'diagnostic_conditions': ['above', 'above']},
@@ -281,7 +282,8 @@ def wxcode_decision_tree():
             'probability_thresholds': [0.5],
             'threshold_condition': '>=',
             'condition_combination': '',
-            'diagnostic_fields': ['cloud_amount_of_low_cloud'],
+            'diagnostic_fields': [('probability_of_low_type_' +
+                                   'cloud_area_fraction')],
             'diagnostic_thresholds': [AuxCoord(0.85, units=1)],
             'diagnostic_conditions': ['above']},
 
