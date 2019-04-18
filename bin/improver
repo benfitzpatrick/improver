@@ -68,6 +68,19 @@ fi
 OPER=$1
 shift
 
+function improver_exec {
+    OPER=$1
+    shift
+    IMPR_ARGS="$@"
+    if type -f "improver_$OPER" >/dev/null 2>&1; then
+        exec improver_$OPER "$IMPR_ARGS"
+    elif type -f impr.py >/dev/null 2>&1; then
+        exec impr.py $OPER "$IMPR_ARGS"
+    else
+        exec improver_$OPER.py "$IMPR_ARGS"
+    fi
+}
+
 # Apply site-specific setup if necessary.
 if [[ -f "${IMPROVER_SITE_INIT:=$IMPROVER_DIR/etc/site-init}" ]]; then
     . "$IMPROVER_SITE_INIT"
@@ -77,4 +90,6 @@ fi
 export PYTHONPATH="$IMPROVER_DIR/lib/:${PYTHONPATH:-}"
 export PATH="$IMPROVER_DIR/bin/:$PATH"
 
-exec improver-$OPER "$@"
+OPER=${OPER//-/_}
+
+improver_exec $OPER $@

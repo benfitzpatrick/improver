@@ -1,0 +1,42 @@
+#!/bin/bash
+
+set -eu
+
+PYDIR=$(mktemp -d)
+touch $PYDIR/sitecustomize.py
+DEST=$1
+
+cat >$PYDIR/imprlaunch.py <<__PYTHON__
+
+import importlib
+import sys
+
+if __name__ == "__main__":
+    oper = sys.argv.pop(1)
+    module = importlib.import_module("improver_" + oper)
+    module.main()
+__PYTHON__
+
+IMPORTS=""
+for file in $(cd $IMPROVER_DIR/bin/ && find . -name "*.py"); do
+    module=$(sed "s/.py$//; s@^\./@@g; s@/@.@g;" <<<"$file")
+    echo "FILE $file MODULE $module"
+    IMPORTS="$IMPORTS --hidden-import $module"
+done
+
+SITE_PACKAGES=$SSS_TAG_DIR/lib/python3.6/site-packages/
+for file in $(cd $SITE_PACKAGES && find iris/fileformats/_pyke_rules/ -name "*.py" && find pyke/ -name "*.py"); do
+    module=$(sed "s/.py$//; s@^\./@@g; s@/@.@g;" <<<"$file")
+    echo "FILE $file MODULE $module"
+    IMPORTS="$IMPORTS --hidden-import $module"
+done
+
+DATAS="--add-data $SITE_PACKAGES/iris/fileformats/_pyke_rules/fc_rules_cf.krb:iris/fileformats/_pyke_rules/fc_rules_cf.krb"
+
+export LD_LIBRARY_PATH=$SSS_TAG_DIR/lib/
+export PYTHONPATH=$PYTHONPATH:$IMPROVER_DIR/bin/
+
+set -x
+pyinstaller $IMPORTS $DATAS $PYDIR/imprlaunch.py -p $(dirname $0) -n impr.py --onefile --clean #--debug=imports
+mkdir -p $DEST
+cp dist/impr.py $DEST/
