@@ -71,13 +71,14 @@ shift
 function improver_exec {
     OPER=$1
     shift
-    IMPR_ARGS="$@"
+    IMPR_ARGS=( "$@" )
+
     if type -f "improver_$OPER" >/dev/null 2>&1; then
-        exec improver_$OPER $IMPR_ARGS
+        exec improver_$OPER "${IMPR_ARGS[@]}"
     elif type -f impr_launch >/dev/null 2>&1; then
-        exec impr_launch $OPER $IMPR_ARGS
+        exec impr_launch $OPER "${IMPR_ARGS[@]}"
     else
-        exec improver_$OPER.py $IMPR_ARGS
+        exec improver_$OPER.py "${IMPR_ARGS[@]}"
     fi
 }
 
@@ -92,4 +93,5 @@ export PATH="$IMPROVER_DIR/bin/:$PATH"
 
 OPER=${OPER//-/_}
 
-improver_exec $OPER $@
+OPER_ARGS=( "$@" )
+improver_exec $OPER "${OPER_ARGS[@]}"
