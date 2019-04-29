@@ -27,7 +27,7 @@ export IMPROVER_DIR="$(cd $(dirname $0)/../ && pwd -P)"
 # List all improver subcommands or operations.
 get_operations() {
     cd "$IMPROVER_DIR/bin/"
-    ls improver-*[^~] | sort | sed "s/^improver-//"
+    ls improver_*[^~] | sort | sed "s/^improver_//; s/\.py$//; s/_/-/g"
 }
 
 # Print generic or operation specific help.
@@ -73,11 +73,11 @@ function improver_exec {
     shift
     IMPR_ARGS="$@"
     if type -f "improver_$OPER" >/dev/null 2>&1; then
-        exec improver_$OPER "$IMPR_ARGS"
-    elif type -f impr.py >/dev/null 2>&1; then
-        exec impr.py $OPER "$IMPR_ARGS"
+        exec improver_$OPER $IMPR_ARGS
+    elif type -f impr_launch >/dev/null 2>&1; then
+        exec impr_launch $OPER $IMPR_ARGS
     else
-        exec improver_$OPER.py "$IMPR_ARGS"
+        exec improver_$OPER.py $IMPR_ARGS
     fi
 }
 

@@ -6,7 +6,7 @@ PYDIR=$(mktemp -d)
 touch $PYDIR/sitecustomize.py
 DEST=$1
 
-cat >$PYDIR/imprlaunch.py <<__PYTHON__
+cat >$PYDIR/impr_launch.py <<__PYTHON__
 
 import importlib
 import sys
@@ -37,6 +37,6 @@ export LD_LIBRARY_PATH=$SSS_TAG_DIR/lib/
 export PYTHONPATH=$PYTHONPATH:$IMPROVER_DIR/bin/
 
 set -x
-pyinstaller $IMPORTS $DATAS $PYDIR/imprlaunch.py -p $(dirname $0) -n impr.py --onefile --clean #--debug=imports
+pyinstaller $IMPORTS $DATAS $PYDIR/impr_launch.py -p $(dirname $0) -n impr_launch --onefile --clean --debug=imports
 mkdir -p $DEST
-cp dist/impr.py $DEST/
+cp dist/impr_launch $DEST/
