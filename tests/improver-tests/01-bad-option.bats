@@ -50,21 +50,21 @@ Arguments:
     SUBCLI          Name(s) of cli tests to run without running the rest.
                     Valid names are either:
                      * directory names which appear in tests/ minus the
-                       "improver-" prefix, e.g. 'nbhood'
+                       "improver " prefix, e.g. 'nbhood'
                      * as above, but also including a bats file, e.g.
                        'nbhood/01-help.bats'
                      * full or relative paths to directories or individual BATS
                        test files, e.g.
-                       'tests/improver-nbhood/01-help.bats' or
-                       '$HOME/improver/tests/improver-nbhood/'.
+                       'tests/improver nbhood/01-help.bats' or
+                       '$HOME/improver/tests/improver nbhood/'.
                     The default is to run all cli tests in the tests/
                     directory. If a directory is given, all tests within the
                     directory will be run. If a specific BATS file is given,
                     only that will be run. For example,
                     'improver tests cli nbhood'
                     will run neighbourhood processing cli tests in
-                    tests/improver-nbhood/*.bats.
-                    'improver tests cli ~/improver/tests/improver-nbhood/01-help.bats'
+                    tests/improver nbhood/*.bats.
+                    'improver tests cli ~/improver/tests/improver nbhood/01-help.bats'
                     will only run that specific nbhood CLI test.
 __HELP__
   [[ "$output" == "$expected" ]]

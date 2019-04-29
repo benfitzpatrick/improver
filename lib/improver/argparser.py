@@ -30,6 +30,9 @@
 # POSSIBILITY OF SUCH DAMAGE.
 """Common option utilities for improver CLIs."""
 
+import re
+import sys
+
 from argparse import ArgumentParser
 
 from improver.profile import profile_hook_enable
@@ -136,6 +139,12 @@ class ArgParser(ArgumentParser):
         # get argspecs of the central arguments from the list of keys passed in
         central_arguments = [ArgParser.CENTRALIZED_ARGUMENTS[arg_name] for
                              arg_name in central_arguments]
+
+        if "prog" not in kwargs:
+            kwargs['prog'] = (
+                re.sub(".*improver-(.+)\.py", r"improver \1",
+                       sys.argv[0].replace("_", "-"))
+            )
 
         # create instance of ArgumentParser (pass along kwargs)
         super(ArgParser, self).__init__(**kwargs)
