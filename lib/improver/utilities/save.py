@@ -30,6 +30,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 """Module for saving netcdf cubes with desired attribute types."""
 
+import dask
 import iris
 
 from improver.utilities.cube_checker import check_cube_not_float64
@@ -136,6 +137,7 @@ def save_netcdf(cubelist, filename):
             min([128, cube.shape[-1]])
         ]
         chunksizes = tuple([1] * (cube.ndim - 2) + xy_chunksizes)
-    iris.fileformats.netcdf.save(cubelist, filename, local_keys=local_keys,
-                                 complevel=1, shuffle=True, zlib=True,
-                                 chunksizes=chunksizes)
+    with dask.config.set(scheduler='synchronous'):
+        iris.fileformats.netcdf.save(cubelist, filename, local_keys=local_keys,
+                                     complevel=1, shuffle=True, zlib=True,
+                                     chunksizes=chunksizes)
