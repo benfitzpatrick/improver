@@ -147,7 +147,7 @@ def main(argv=None):
                                 args.threshold_config))
         except Exception as err:
             # Extend any errors with message about WHERE this occurred.
-            raise type(err)(err + " in JSON file {}".format(
+            raise type(err)(str(err) + " in JSON file {}".format(
                 args.threshold_config))
     else:
         thresholds = args.threshold_values
