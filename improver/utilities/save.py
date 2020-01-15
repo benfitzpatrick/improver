@@ -30,6 +30,8 @@
 # POSSIBILITY OF SUCH DAMAGE.
 """Module for saving netcdf cubes with desired attribute types."""
 
+import functools
+import operator
 import os
 import warnings
 
@@ -38,6 +40,9 @@ import iris
 
 from improver.metadata.check_datatypes import (
     check_datatypes, check_time_coordinate_metadata)
+
+
+MAX_CUBE_SIZE_COMPRESSION = 84 * 1024 * 1024  # Don't compress cubes if larger
 
 
 def _append_metadata_cube(cubelist, global_keys):
@@ -165,6 +170,14 @@ def save_netcdf(cubelist, filename):
                "contains cubes of varying dimensions")
         warnings.warn(msg)
 
+    compression_on = True
+    for cube in cubelist:
+        if (functools.reduce(operator.mul, cube.shape, 1) >
+                MAX_CUBE_SIZE_COMPRESSION):
+            # Not worth compressing very large cubes.
+            compression_on = False
+            break
+
     global_keys = ['title', 'um_version', 'grid_id', 'source', 'Conventions',
                    'mosg__grid_type', 'mosg__model_configuration',
                    'mosg__grid_domain', 'mosg__grid_version',
@@ -177,6 +190,7 @@ def save_netcdf(cubelist, filename):
     # save atomically by writing to a temporary file and then renaming
     ftmp = str(filename) + '.tmp'
     iris.fileformats.netcdf.save(cubelist, ftmp, local_keys=local_keys,
-                                 complevel=1, shuffle=True, zlib=True,
+                                 complevel=1, shuffle=True,
+                                 zlib=compression_on,
                                  chunksizes=chunksizes)
     os.rename(ftmp, filename)
