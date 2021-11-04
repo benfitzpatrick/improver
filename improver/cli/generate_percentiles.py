@@ -96,6 +96,12 @@ def process(
     from improver.metadata.probabilistic import is_probability
     from improver.percentile import PercentileConverter
 
+    cube.data
+    for coord in cube.coords():
+        coord.points
+        if coord.has_bounds()
+            coord.bounds
+
     if percentiles is not None:
         percentiles = [float(p) for p in percentiles]
 

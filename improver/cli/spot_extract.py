@@ -142,6 +142,14 @@ def process(
     from improver.utilities.cube_extraction import extract_subcube
     from improver.utilities.cube_manipulation import collapse_realizations
 
+
+    for lazy_cube in [cube, neighbour_cube]:
+        lazy_cube.data
+        for coord in lazy_cube.coords():
+            coord.points
+            if coord.has_bounds()
+                coord.bounds
+
     if realization_collapse:
         cube = collapse_realizations(cube)
     neighbour_selection_method = NeighbourSelection(
