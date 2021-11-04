@@ -99,7 +99,7 @@ def process(
     cube.data
     for coord in cube.coords():
         coord.points
-        if coord.has_bounds()
+        if coord.has_bounds():
             coord.bounds
 
     if percentiles is not None:

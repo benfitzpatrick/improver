@@ -147,7 +147,7 @@ def process(
         lazy_cube.data
         for coord in lazy_cube.coords():
             coord.points
-            if coord.has_bounds()
+            if coord.has_bounds():
                 coord.bounds
 
     if realization_collapse:
