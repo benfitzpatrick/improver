@@ -106,9 +106,14 @@ jobs:
         flake8 improver improver_tests
   PR standards:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-    - name: Check CONTRIBUTING.md
-      uses: cylc/release-actions/check-shortlog@v1
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 
+      - name: Check CONTRIBUTING.md
+        uses: cylc/release-actions/check-shortlog@v1
   Safety-Bandit:
     runs-on: ubuntu-latest
     strategy:
