@@ -104,6 +104,8 @@ jobs:
         source '/usr/share/miniconda/etc/profile.d/conda.sh'
         conda activate im${{ matrix.env }}
         flake8 improver improver_tests
+    - name: Check CONTRIBUTING.md
+      uses: cylc/release-actions/check-shortlog@v1
   Safety-Bandit:
     runs-on: ubuntu-latest
     strategy:
