@@ -934,6 +934,10 @@ class PhaseChangeLevel(BasePlugin):
                 limit=orography,
                 valid_points=max_nbhood_mask,
             )
+            if np.isnan(phase_change_data).any():
+                phase_change_data = interpolate_missing_data(
+                    phase_change_data, method="nearest"
+                )
 
         # Mask any points that are still set to np.nan; this should be no
         # points if horizontal interpolation has been used.
